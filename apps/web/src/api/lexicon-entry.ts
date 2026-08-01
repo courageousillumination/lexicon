@@ -23,33 +23,48 @@ export function useLexiconEntries(lexiconId: string | undefined) {
   });
 }
 
-export function useCreateLexiconEntry(lexiconId: string | undefined) {
+export function useCreateLexiconEntries(lexiconId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (value: string) => {
+    mutationFn: async (values: string[]) => {
       if (!lexiconId) {
         throw new Error("No lexicon selected");
       }
 
-      const input: CreateLexiconEntryInput = {
-        lexiconId,
-        type: "lexeme",
-        status: "draft",
-        value,
-        pronunciation: "",
-        language: "",
-        definitions: [],
-        variants: [],
-        tags: [],
-      };
+      const normalized = [
+        ...new Set(values.map((value) => value.trim()).filter(Boolean)),
+      ];
 
-      return createLexiconEntry(getSupabase(), input);
+      if (normalized.length === 0) {
+        throw new Error("No values to create");
+      }
+
+      return Promise.all(
+        normalized.map((value) => {
+          const input: CreateLexiconEntryInput = {
+            lexiconId,
+            type: "lexeme",
+            status: "draft",
+            value,
+            pronunciation: "",
+            language: "",
+            definitions: [],
+            variants: [],
+            tags: [],
+          };
+          return createLexiconEntry(getSupabase(), input);
+        }),
+      );
     },
     onSuccess: (created) => {
+      if (!lexiconId || created.length === 0) {
+        return;
+      }
+
       queryClient.setQueryData<LexiconEntry[]>(
-        lexiconEntryKeys.list(created.lexiconId),
-        (current) => (current ? [created, ...current] : [created]),
+        lexiconEntryKeys.list(lexiconId),
+        (current) => (current ? [...created, ...current] : created),
       );
     },
   });

@@ -1,14 +1,7 @@
-import { useContext, useState, type FormEvent } from "react";
-import {
-  Alert,
-  Button,
-  Group,
-  Stack,
-  Text,
-  TextInput,
-  Title,
-} from "@mantine/core";
-import { useCreateLexiconEntry, useLexiconEntries } from "../api/lexicon-entry";
+import { useContext } from "react";
+import { Alert, Stack, Text, Title } from "@mantine/core";
+import { useLexiconEntries } from "../api/lexicon-entry";
+import { AddLexiconEntriesForm } from "../components/organisms/AddLexiconEntriesForm";
 import { LexiconEntryTable } from "../components/molecules/LexiconEntryTable";
 import { LexiconContext } from "../contexts/LexiconContext";
 
@@ -22,28 +15,8 @@ function errorMessage(error: unknown, fallback: string): string | null {
 export function LexiconPage() {
   const { lexicon } = useContext(LexiconContext)!;
   const entriesQuery = useLexiconEntries(lexicon?.id);
-  const createEntry = useCreateLexiconEntry(lexicon?.id);
-  const [value, setValue] = useState("");
-
   const entries = entriesQuery.data ?? [];
-  const error =
-    errorMessage(entriesQuery.error, "Unable to load entries") ??
-    errorMessage(createEntry.error, "Unable to create entry");
-
-  async function onCreate(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const trimmed = value.trim();
-    if (!trimmed || !lexicon) {
-      return;
-    }
-
-    try {
-      await createEntry.mutateAsync(trimmed);
-      setValue("");
-    } catch {
-      // Error is surfaced via createEntry.error
-    }
-  }
+  const error = errorMessage(entriesQuery.error, "Unable to load entries");
 
   if (!lexicon) {
     return (
@@ -63,27 +36,7 @@ export function LexiconPage() {
         <Text c="dimmed">Lexical entries in this lexicon.</Text>
       </Stack>
 
-      <Stack gap="sm" component="section" aria-labelledby="add-entry-heading">
-        <Title order={2} id="add-entry-heading">
-          Add an entry
-        </Title>
-        <form onSubmit={(event) => void onCreate(event)}>
-          <Group align="flex-end" gap="sm" wrap="nowrap">
-            <TextInput
-              label="Value"
-              name="value"
-              required
-              flex={1}
-              value={value}
-              onChange={(event) => setValue(event.currentTarget.value)}
-              placeholder="e.g. 你好"
-            />
-            <Button type="submit" loading={createEntry.isPending}>
-              Add
-            </Button>
-          </Group>
-        </form>
-      </Stack>
+      <AddLexiconEntriesForm />
 
       <Stack gap="md" component="section" aria-labelledby="entries-heading">
         <Title order={2} id="entries-heading">
@@ -91,7 +44,7 @@ export function LexiconPage() {
         </Title>
         {entriesQuery.isPending ? <Text c="dimmed">Loading…</Text> : null}
         {!entriesQuery.isPending && entries.length === 0 ? (
-          <Text c="dimmed">No entries yet. Add one above.</Text>
+          <Text c="dimmed">No entries yet. Add some above.</Text>
         ) : null}
         <LexiconEntryTable entries={entries} />
       </Stack>
