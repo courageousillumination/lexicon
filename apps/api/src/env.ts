@@ -1,24 +1,65 @@
-export const envSchema = {
-  type: "object",
-  properties: {
-    NODE_ENV: {
-      type: "string",
-      enum: ["development", "test", "production"],
-      default: "development",
-    },
-    HOST: {
-      type: "string",
-      default: "0.0.0.0",
-    },
-    PORT: {
-      type: "number",
-      default: 3000,
-    },
-  },
-} as const;
-
 export type Env = {
   NODE_ENV: "development" | "test" | "production";
   HOST: string;
   PORT: number;
+  SUPABASE_URL: string;
+  SUPABASE_PUBLISHABLE_KEY: string;
+  SUPABASE_SECRET_KEY: string;
 };
+
+export type EnvOverrides = Partial<{
+  [K in keyof Env]: string | number | undefined;
+}>;
+
+function readString(
+  source: Record<string, string | undefined>,
+  key: string,
+  fallback?: string,
+): string {
+  const value = source[key] ?? fallback;
+  if (value === undefined || value.length === 0) {
+    throw new Error(`Missing required environment variable: ${key}`);
+  }
+  return value;
+}
+
+function readPort(source: Record<string, string | undefined>): number {
+  const raw = source.PORT ?? "3000";
+  const port = Number(raw);
+  if (!Number.isInteger(port) || port <= 0) {
+    throw new Error(`Invalid PORT value: ${raw}`);
+  }
+  return port;
+}
+
+function readNodeEnv(
+  source: Record<string, string | undefined>,
+): Env["NODE_ENV"] {
+  const value = source.NODE_ENV ?? "development";
+  if (value !== "development" && value !== "test" && value !== "production") {
+    throw new Error(`Invalid NODE_ENV value: ${value}`);
+  }
+  return value;
+}
+
+/** Load and validate API environment configuration. */
+export function loadEnv(overrides: EnvOverrides = {}): Env {
+  const source: Record<string, string | undefined> = {
+    ...process.env,
+    ...Object.fromEntries(
+      Object.entries(overrides).map(([key, value]) => [
+        key,
+        value === undefined ? undefined : String(value),
+      ]),
+    ),
+  };
+
+  return {
+    NODE_ENV: readNodeEnv(source),
+    HOST: source.HOST || "0.0.0.0",
+    PORT: readPort(source),
+    SUPABASE_URL: readString(source, "SUPABASE_URL"),
+    SUPABASE_PUBLISHABLE_KEY: readString(source, "SUPABASE_PUBLISHABLE_KEY"),
+    SUPABASE_SECRET_KEY: readString(source, "SUPABASE_SECRET_KEY"),
+  };
+}

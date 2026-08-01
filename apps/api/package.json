@@ -12,9 +12,11 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@fastify/cors": "^11.3.0",
-    "@fastify/env": "^7.0.0",
-    "fastify": "^5.11.0"
+    "@hono/node-server": "^2.0.12",
+    "@supabase/server": "^1.4.1",
+    "@supabase/supabase-js": "^2.111.0",
+    "dotenv": "^17.4.2",
+    "hono": "^4.12.33"
   },
   "devDependencies": {
     "@types/node": "^26.1.2",

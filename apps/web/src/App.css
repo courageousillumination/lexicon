@@ -1,12 +1,21 @@
 .app {
   display: grid;
-  gap: 0.75rem;
-  place-content: center;
+  gap: 1.5rem;
+  align-content: start;
+  justify-items: stretch;
+  width: min(100%, 36rem);
   min-height: 100vh;
+  margin: 0 auto;
   padding: 2rem;
   background:
     radial-gradient(circle at top left, #e8d9c0 0%, transparent 45%),
     linear-gradient(160deg, #f6f4ef 0%, #ebe4d6 100%);
+  background-attachment: fixed;
+}
+
+.app__header {
+  display: grid;
+  gap: 0.4rem;
 }
 
 .app h1 {
@@ -16,11 +25,92 @@
   letter-spacing: -0.03em;
 }
 
+.app h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
 .app p {
   margin: 0;
   max-width: 32rem;
-  font-size: 1.125rem;
+  font-size: 1.05rem;
   line-height: 1.5;
+  color: #4a453c;
+}
+
+.app__section {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.app__form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.app__field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.app__field span {
+  font-size: 0.95rem;
+  color: #4a453c;
+}
+
+.app__field input {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid #cfc5b4;
+  border-radius: 0.35rem;
+  background: rgba(255, 252, 246, 0.9);
+  color: #1a1a1a;
+  font: inherit;
+}
+
+.app__field input:focus {
+  outline: 2px solid #2c241b;
+  outline-offset: 1px;
+}
+
+.app__form button[type="submit"] {
+  justify-self: start;
+  padding: 0.7rem 1rem;
+  border: 0;
+  border-radius: 0.35rem;
+  background: #2c241b;
+  color: #f6f4ef;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.app__form button[type="submit"]:hover:not(:disabled) {
+  background: #3d3328;
+}
+
+.app__form button[type="submit"]:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.app__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.app__list li {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #d9d0c0;
+  font-size: 1.05rem;
+}
+
+.app__empty {
   color: #4a453c;
 }
 
@@ -29,10 +119,26 @@
   font-size: 0.95rem;
 }
 
-.status.ok {
-  color: #2f6b3a;
-}
-
 .status.error {
   color: #8a2f2f;
+}
+
+.app__sign-out {
+  justify-self: start;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid #2c241b;
+  border-radius: 0.35rem;
+  background: transparent;
+  color: #2c241b;
+  font: inherit;
+  cursor: pointer;
+}
+
+.app__sign-out:hover:not(:disabled) {
+  background: rgba(44, 36, 27, 0.06);
+}
+
+.app__sign-out:disabled {
+  opacity: 0.7;
+  cursor: default;
 }

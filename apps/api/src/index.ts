@@ -1,12 +1,18 @@
-import { buildServer } from "./server.js";
+import { serve } from "@hono/node-server";
+import { config as loadDotenv } from "dotenv";
+import { buildApp } from "./server.js";
 
-const app = await buildServer();
-const { HOST, PORT } = app.config;
+loadDotenv();
 
-try {
-  await app.listen({ host: HOST, port: PORT });
-  app.log.info(`API listening on http://${HOST}:${PORT}`);
-} catch (error) {
-  app.log.error(error);
-  process.exit(1);
-}
+const { app, config } = buildApp();
+
+serve(
+  {
+    fetch: app.fetch,
+    hostname: config.HOST,
+    port: config.PORT,
+  },
+  (info) => {
+    console.log(`API listening on http://${info.address}:${info.port}`);
+  },
+);
