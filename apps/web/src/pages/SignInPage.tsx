@@ -28,12 +28,12 @@ export function SignInPage() {
 
   const onSubmit = form.onSubmit(async (values) => {
     await signIn(values.email, values.password);
-    void navigate("/", { replace: true });
+    void navigate("/lexicon", { replace: true });
   });
 
   // Redirect if the user is already authenticated.
   if (!loading && user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/lexicon" replace />;
   }
 
   return (

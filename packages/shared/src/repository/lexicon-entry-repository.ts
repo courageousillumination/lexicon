@@ -14,6 +14,8 @@ export type UpdateLexiconEntryInput = LexiconEntry;
 export interface LexiconEntrySearchOptions {
   /** Restrict to entries in this lexicon. */
   lexiconId: string;
+  /** Restrict to specific entry IDs. */
+  ids?: string[];
   /** Restrict to a single entry type. */
   type?: LexiconEntryType;
   /** Maximum number of entries to return. */
@@ -109,11 +111,19 @@ export async function getLexiconEntries(
   client: Client,
   options: LexiconEntrySearchOptions,
 ): Promise<LexiconEntry[]> {
+  if (options.ids !== undefined && options.ids.length === 0) {
+    return [];
+  }
+
   let query = client
     .from("lexicon_entries")
     .select(ENTRY_COLUMNS)
     .eq("lexicon_id", options.lexiconId)
     .order("created_at", { ascending: false });
+
+  if (options.ids !== undefined) {
+    query = query.in("id", options.ids);
+  }
 
   if (options.type !== undefined) {
     query = query.eq("type", options.type);

@@ -20,7 +20,10 @@ export async function authenticatedFetch<T>(
 ): Promise<T> {
   const response = await fetch(input, {
     ...init,
-    headers: await authHeaders(),
+    headers: {
+      ...(await authHeaders()),
+      ...init?.headers,
+    },
   });
 
   if (!response.ok) {

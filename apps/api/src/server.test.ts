@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { buildApp, type App } from "./server.js";
 
-describe("API app", () => {
+describe("API routes", () => {
   let app: App;
 
   beforeAll(() => {
@@ -14,7 +14,16 @@ describe("API app", () => {
     }));
   });
 
-  it("builds successfully", () => {
-    expect(app).toBeDefined();
+  it("requires authentication to enhance lexicon entries", async () => {
+    const response = await app.request(
+      "/api/lexicons/00000000-0000-0000-0000-000000000001/entries/enhance",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: ["00000000-0000-0000-0000-000000000002"] }),
+      },
+    );
+
+    expect(response.status).toBe(401);
   });
 });
