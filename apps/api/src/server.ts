@@ -2,7 +2,6 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import type { AppEnv } from "./app-env.js";
 import { loadEnv, type Env, type EnvOverrides } from "./env.js";
-import { createLexiconsRoutes } from "./routes/lexicons.js";
 
 export type { AppEnv } from "./app-env.js";
 
@@ -32,8 +31,6 @@ export function buildApp(options: BuildAppOptions = {}): {
     c.set("config", config);
     await next();
   });
-
-  app.route("/api/lexicons", createLexiconsRoutes(config));
 
   return { app, config };
 }

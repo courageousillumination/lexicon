@@ -28,6 +28,9 @@ export interface LexiconEntryBase {
   /** Unique ID for this entry. */
   id: string;
 
+  /** The status of this entry. */
+  status: "draft" | "active" | "archived";
+
   /** Value of this entry (unicode) */
   value: string;
 
@@ -50,6 +53,9 @@ export interface LexiconEntryBase {
 
   /** Possible variants of this entry (e.g. traditional vs simplified, UK vs US, etc.) */
   variants: LexiconEntryVariant[];
+
+  /** User defined tags for this entry. */
+  tags: string[];
 }
 
 /** A morpheme is a single unit of meaning. */
