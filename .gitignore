@@ -32,3 +32,5 @@ coverage
 
 # Supabase
 supabase/.temp
+
+.pnpm-store/v11/index.db

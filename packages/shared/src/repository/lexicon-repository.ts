@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Lexicon } from "../model/lexicon.js";
 import type { Database, LexiconRow } from "../supabase/index.js";
+import { dataOrThrow, dataOrThrowMany, dataOrThrowMaybe } from "./common.js";
 
 export type CreateLexiconInput = Omit<Lexicon, "id" | "entries">;
 export type UpdateLexiconInput = Omit<Lexicon, "entries">;
@@ -23,24 +24,20 @@ export async function createLexicon(
   client: Client,
   input: CreateLexiconInput,
 ): Promise<Lexicon> {
-  const { data, error } = await client
+  const result = await client
     .from("lexicons")
     .insert({ name: input.name })
     .select("id, name, created_at, updated_at")
     .single();
 
-  if (error) {
-    throw error;
-  }
-
-  return mapRow(data);
+  return dataOrThrow(result, mapRow);
 }
 
 export async function updateLexicon(
   client: Client,
   input: UpdateLexiconInput,
 ): Promise<Lexicon> {
-  const { data, error } = await client
+  const result = await client
     .from("lexicons")
     .update({
       name: input.name,
@@ -50,28 +47,20 @@ export async function updateLexicon(
     .select("id, name, created_at, updated_at")
     .single();
 
-  if (error) {
-    throw error;
-  }
-
-  return mapRow(data);
+  return dataOrThrow(result, mapRow);
 }
 
 export async function getLexicon(
   client: Client,
   id: string,
 ): Promise<Lexicon | null> {
-  const { data, error } = await client
+  const result = await client
     .from("lexicons")
     .select("id, name, created_at, updated_at")
     .eq("id", id)
     .maybeSingle();
 
-  if (error) {
-    throw error;
-  }
-
-  return data ? mapRow(data) : null;
+  return dataOrThrowMaybe(result, mapRow);
 }
 
 export async function getLexicons(
@@ -87,19 +76,9 @@ export async function getLexicons(
     query = query.limit(options.limit);
   }
 
-  const { data, error } = await query;
-
-  if (error) {
-    throw error;
-  }
-
-  return (data ?? []).map(mapRow);
+  return dataOrThrowMany(await query, mapRow);
 }
 
 export async function deleteLexicon(client: Client, id: string): Promise<void> {
-  const { error } = await client.from("lexicons").delete().eq("id", id);
-
-  if (error) {
-    throw error;
-  }
+  dataOrThrowMaybe(await client.from("lexicons").delete().eq("id", id));
 }

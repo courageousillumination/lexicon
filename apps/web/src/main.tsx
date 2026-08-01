@@ -1,13 +1,18 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { AuthProvider } from "./auth/AuthProvider";
+import { MantineProvider } from "@mantine/core";
+import { AuthProvider } from "./contexts/AuthProvider";
 import { App } from "./App";
-import "./index.css";
+
+// Mantine base styles.
+import "@mantine/core/styles.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+    <MantineProvider defaultColorScheme="light">
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </MantineProvider>
   </StrictMode>,
 );

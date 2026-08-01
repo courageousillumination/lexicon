@@ -14,16 +14,6 @@ describe("API routes", () => {
     }));
   });
 
-  it("returns an ok health response", async () => {
-    const response = await app.request("/api/health");
-
-    expect(response.status).toBe(200);
-    expect(await response.json()).toMatchObject({
-      status: "ok",
-      service: "api",
-    });
-  });
-
   it("requires authentication to list lexicons", async () => {
     const response = await app.request("/api/lexicons");
 

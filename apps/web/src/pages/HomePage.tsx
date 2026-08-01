@@ -1,13 +1,24 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useContext, useEffect, useState, type FormEvent } from "react";
+import {
+  Alert,
+  Button,
+  Container,
+  List,
+  Stack,
+  Text,
+  TextInput,
+  Title,
+} from "@mantine/core";
 import { createLexicon } from "@lexicon/shared/repository";
 import type { Lexicon } from "@lexicon/shared/model";
-import { useAuth } from "../auth/useAuth";
+import { AuthContext } from "../contexts/AuthContext";
 import { fetchLexicons } from "../lib/api";
 import { getSupabase } from "../lib/supabase";
-import "../App.css";
+import { useSignOut } from "../hooks/auth";
 
 export function HomePage() {
-  const { user, signOut } = useAuth();
+  const { user } = useContext(AuthContext)!;
+  const signOut = useSignOut();
   const [lexicons, setLexicons] = useState<Lexicon[]>([]);
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -71,61 +82,71 @@ export function HomePage() {
   }
 
   return (
-    <main className="app">
-      <header className="app__header">
-        <h1>Lexicon</h1>
-        <p>Signed in as {user?.email}</p>
-      </header>
+    <Container size="sm" py="xl">
+      <Stack gap="xl">
+        <Stack gap="xs">
+          <Title order={1}>Lexicon</Title>
+          <Text c="dimmed">Signed in as {user?.email}</Text>
+        </Stack>
 
-      <section
-        className="app__section"
-        aria-labelledby="create-lexicon-heading"
-      >
-        <h2 id="create-lexicon-heading">Create a lexicon</h2>
-        <form className="app__form" onSubmit={(event) => void onCreate(event)}>
-          <label className="app__field">
-            <span>Name</span>
-            <input
-              type="text"
-              name="name"
-              required
-              maxLength={120}
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder="e.g. Mandarin essentials"
-            />
-          </label>
-          <button type="submit" disabled={submitting}>
-            {submitting ? "Creating…" : "Create"}
-          </button>
-        </form>
-      </section>
+        <Stack
+          gap="sm"
+          component="section"
+          aria-labelledby="create-lexicon-heading"
+        >
+          <Title order={2} id="create-lexicon-heading">
+            Create a lexicon
+          </Title>
+          <form onSubmit={(event) => void onCreate(event)}>
+            <Stack gap="sm">
+              <TextInput
+                label="Name"
+                name="name"
+                required
+                maxLength={120}
+                value={name}
+                onChange={(event) => setName(event.currentTarget.value)}
+                placeholder="e.g. Mandarin essentials"
+              />
+              <Button type="submit" loading={submitting} w="fit-content">
+                Create
+              </Button>
+            </Stack>
+          </form>
+        </Stack>
 
-      <section className="app__section" aria-labelledby="lexicons-heading">
-        <h2 id="lexicons-heading">Your lexicons</h2>
-        {loading ? <p className="status">Loading…</p> : null}
-        {!loading && lexicons.length === 0 ? (
-          <p className="app__empty">No lexicons yet. Create one above.</p>
+        <Stack gap="sm" component="section" aria-labelledby="lexicons-heading">
+          <Title order={2} id="lexicons-heading">
+            Your lexicons
+          </Title>
+          {loading ? <Text c="dimmed">Loading…</Text> : null}
+          {!loading && lexicons.length === 0 ? (
+            <Text c="dimmed">No lexicons yet. Create one above.</Text>
+          ) : null}
+          {lexicons.length > 0 ? (
+            <List spacing="xs">
+              {lexicons.map((lexicon) => (
+                <List.Item key={lexicon.id}>{lexicon.name}</List.Item>
+              ))}
+            </List>
+          ) : null}
+        </Stack>
+
+        {error ? (
+          <Alert color="red" title="Something went wrong">
+            {error}
+          </Alert>
         ) : null}
-        {lexicons.length > 0 ? (
-          <ul className="app__list">
-            {lexicons.map((lexicon) => (
-              <li key={lexicon.id}>{lexicon.name}</li>
-            ))}
-          </ul>
-        ) : null}
-      </section>
 
-      {error ? <p className="status error">{error}</p> : null}
-
-      <button
-        type="button"
-        className="app__sign-out"
-        onClick={() => void onSignOut()}
-        disabled={signingOut}
-      >
-        {signingOut ? "Signing out…" : "Sign out"}
-      </button>
-    </main>
+        <Button
+          variant="default"
+          w="fit-content"
+          onClick={() => void onSignOut()}
+          loading={signingOut}
+        >
+          Sign out
+        </Button>
+      </Stack>
+    </Container>
   );
 }

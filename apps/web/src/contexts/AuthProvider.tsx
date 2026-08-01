@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
+import { AuthContext } from "./AuthContext";
 import { getSupabase } from "../lib/supabase";
-import { AuthContext, type AuthContextValue } from "./AuthContext";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -31,29 +31,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const value = useMemo<AuthContextValue>(
-    () => ({
-      session,
-      user: session?.user ?? null,
-      loading,
-      async signIn(email, password) {
-        const { error } = await getSupabase().auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) {
-          throw error;
-        }
-      },
-      async signOut() {
-        const { error } = await getSupabase().auth.signOut();
-        if (error) {
-          throw error;
-        }
-      },
-    }),
-    [session, loading],
+  return (
+    <AuthContext.Provider value={{ user: session?.user ?? null, loading }}>
+      {children}
+    </AuthContext.Provider>
   );
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

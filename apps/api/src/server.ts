@@ -2,7 +2,6 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { withSupabase } from "@supabase/server/adapters/hono";
 import type { SupabaseContext } from "@supabase/server";
-import { createHealthResponse } from "@lexicon/shared";
 import { getLexicons } from "@lexicon/shared/repository";
 import type { Database } from "@lexicon/shared/supabase";
 import { loadEnv, type Env, type EnvOverrides } from "./env.js";
@@ -49,8 +48,6 @@ export function buildApp(options: BuildAppOptions = {}): {
     c.set("config", config);
     await next();
   });
-
-  app.get("/api/health", (c) => c.json(createHealthResponse("api")));
 
   const lexicons = new Hono<AppEnv>();
 
