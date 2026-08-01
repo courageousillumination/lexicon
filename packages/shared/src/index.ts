@@ -3,8 +3,13 @@ export type * from "./repository/index.js";
 export type * from "./supabase/index.js";
 export {
   createLexicon,
+  createLexiconEntry,
   deleteLexicon,
+  deleteLexiconEntry,
   getLexicon,
+  getLexiconEntry,
+  getLexiconEntries,
   getLexicons,
   updateLexicon,
+  updateLexiconEntry,
 } from "./repository/index.js";

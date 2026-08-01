@@ -28,6 +28,9 @@ export interface LexiconEntryBase {
   /** Unique ID for this entry. */
   id: string;
 
+  /** Lexicon this entry belongs to. */
+  lexiconId: string;
+
   /** The status of this entry. */
   status: "draft" | "active" | "archived";
 

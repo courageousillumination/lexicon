@@ -39,6 +39,62 @@ export type Database = {
   };
   public: {
     Tables: {
+      lexicon_entries: {
+        Row: {
+          created_at: string;
+          definitions: Json;
+          id: string;
+          language: string;
+          lexicon_id: string;
+          pronunciation: string;
+          status: Database["public"]["Enums"]["lexicon_entry_status"];
+          tags: string[];
+          type: Database["public"]["Enums"]["lexicon_entry_type"];
+          updated_at: string;
+          user_id: string;
+          value: string;
+          variants: Json;
+        };
+        Insert: {
+          created_at?: string;
+          definitions?: Json;
+          id?: string;
+          language: string;
+          lexicon_id: string;
+          pronunciation?: string;
+          status?: Database["public"]["Enums"]["lexicon_entry_status"];
+          tags?: string[];
+          type: Database["public"]["Enums"]["lexicon_entry_type"];
+          updated_at?: string;
+          user_id?: string;
+          value: string;
+          variants?: Json;
+        };
+        Update: {
+          created_at?: string;
+          definitions?: Json;
+          id?: string;
+          language?: string;
+          lexicon_id?: string;
+          pronunciation?: string;
+          status?: Database["public"]["Enums"]["lexicon_entry_status"];
+          tags?: string[];
+          type?: Database["public"]["Enums"]["lexicon_entry_type"];
+          updated_at?: string;
+          user_id?: string;
+          value?: string;
+          variants?: Json;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "lexicon_entries_lexicon_id_fkey";
+            columns: ["lexicon_id"];
+            isOneToOne: false;
+            referencedRelation: "lexicons";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       lexicons: {
         Row: {
           created_at: string;
@@ -71,7 +127,8 @@ export type Database = {
       [_ in never]: never;
     };
     Enums: {
-      [_ in never]: never;
+      lexicon_entry_status: "draft" | "active" | "archived";
+      lexicon_entry_type: "morpheme" | "lexeme" | "phrase";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -201,6 +258,9 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      lexicon_entry_status: ["draft", "active", "archived"],
+      lexicon_entry_type: ["morpheme", "lexeme", "phrase"],
+    },
   },
 } as const;
