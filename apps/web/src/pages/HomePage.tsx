@@ -1,4 +1,4 @@
-import { useContext, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import {
   Alert,
   Button,
@@ -8,7 +8,6 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import { AuthContext } from "../contexts/AuthContext";
 import { useCreateLexicon, useLexicons } from "../api/lexicon";
 
 function errorMessage(error: unknown, fallback: string): string | null {
@@ -19,7 +18,6 @@ function errorMessage(error: unknown, fallback: string): string | null {
 }
 
 export function HomePage() {
-  const { user } = useContext(AuthContext)!;
   const lexiconsQuery = useLexicons();
   const createLexicon = useCreateLexicon();
   const [name, setName] = useState("");
@@ -46,8 +44,6 @@ export function HomePage() {
 
   return (
     <Stack gap="xl">
-      <Text c="dimmed">Signed in as {user?.email}</Text>
-
       <Stack
         gap="sm"
         component="section"

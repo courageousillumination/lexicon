@@ -1,11 +1,13 @@
-import { useState } from "react";
-import { AppShell, Button, NavLink, Stack, Title } from "@mantine/core";
+import { useContext, useState } from "react";
+import { AppShell, Button, NavLink, Stack, Text, Title } from "@mantine/core";
 import { useLocation, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../contexts/AuthContext";
 import { useSignOut } from "../../hooks/auth";
 
 const NAV_ITEMS = [{ value: "/", label: "Lexicons" }] as const;
 
 export function AppSidebar() {
+  const { user } = useContext(AuthContext)!;
   const location = useLocation();
   const navigate = useNavigate();
   const signOut = useSignOut();
@@ -40,14 +42,19 @@ export function AppSidebar() {
       </AppShell.Section>
 
       <AppShell.Section>
-        <Button
-          variant="default"
-          fullWidth
-          onClick={() => void onSignOut()}
-          loading={signingOut}
-        >
-          Sign out
-        </Button>
+        <Stack gap="sm">
+          <Text size="sm" c="dimmed" lineClamp={2}>
+            Signed in as {user?.email}
+          </Text>
+          <Button
+            variant="default"
+            fullWidth
+            onClick={() => void onSignOut()}
+            loading={signingOut}
+          >
+            Sign out
+          </Button>
+        </Stack>
       </AppShell.Section>
     </AppShell.Navbar>
   );

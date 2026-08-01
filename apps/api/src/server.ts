@@ -1,17 +1,10 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { withSupabase } from "@supabase/server/adapters/hono";
-import type { SupabaseContext } from "@supabase/server";
-import { getLexicons } from "@lexicon/shared/repository";
-import type { Database } from "@lexicon/shared/supabase";
+import type { AppEnv } from "./app-env.js";
 import { loadEnv, type Env, type EnvOverrides } from "./env.js";
+import { createLexiconsRoutes } from "./routes/lexicons.js";
 
-export type AppEnv = {
-  Variables: {
-    config: Env;
-    supabaseContext: SupabaseContext<Database>;
-  };
-};
+export type { AppEnv } from "./app-env.js";
 
 export type BuildAppOptions = {
   /** Override process env for tests. */
@@ -19,15 +12,6 @@ export type BuildAppOptions = {
 };
 
 export type App = Hono<AppEnv>;
-
-function supabaseEnv(config: Env) {
-  return {
-    url: config.SUPABASE_URL,
-    publishableKeys: { default: config.SUPABASE_PUBLISHABLE_KEY },
-    secretKeys: { default: config.SUPABASE_SECRET_KEY },
-    jwks: new URL(`${config.SUPABASE_URL}/auth/v1/.well-known/jwks.json`),
-  };
-}
 
 export function buildApp(options: BuildAppOptions = {}): {
   app: App;
@@ -49,22 +33,7 @@ export function buildApp(options: BuildAppOptions = {}): {
     await next();
   });
 
-  const lexicons = new Hono<AppEnv>();
-
-  lexicons.use(
-    "*",
-    withSupabase<Database>({
-      auth: "user",
-      env: supabaseEnv(config),
-    }),
-  );
-
-  lexicons.get("/", async (c) => {
-    const items = await getLexicons(c.var.supabaseContext.supabase);
-    return c.json(items);
-  });
-
-  app.route("/api/lexicons", lexicons);
+  app.route("/api/lexicons", createLexiconsRoutes(config));
 
   return { app, config };
 }
