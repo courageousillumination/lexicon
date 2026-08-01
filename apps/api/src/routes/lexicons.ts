@@ -7,7 +7,7 @@ import {
 import type { Database } from "@lexicon/shared/supabase";
 import type { AppEnv } from "../app-env.js";
 import type { Env } from "../env.js";
-import { enhanceEntry } from "../services/enhance-entry.js";
+import { createEnhanceModel, enhanceEntry } from "../ai/index.js";
 import { supabaseEnv } from "../supabase-env.js";
 
 type EnhanceEntriesBody = {
@@ -16,6 +16,7 @@ type EnhanceEntriesBody = {
 
 export function createLexiconsRoutes(config: Env): Hono<AppEnv> {
   const routes = new Hono<AppEnv>();
+  const model = createEnhanceModel(config);
 
   routes.use(
     "*",
@@ -51,10 +52,12 @@ export function createLexiconsRoutes(config: Env): Hono<AppEnv> {
       );
     }
 
+    const enhanced = await Promise.all(
+      entries.map((entry) => enhanceEntry(entry, model)),
+    );
+
     const updated = await Promise.all(
-      entries.map((entry) =>
-        updateLexiconEntry(client, enhanceEntry(entry)),
-      ),
+      enhanced.map((entry) => updateLexiconEntry(client, entry)),
     );
 
     return c.json({ entries: updated });

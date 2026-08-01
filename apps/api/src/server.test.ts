@@ -10,6 +10,7 @@ describe("API routes", () => {
         SUPABASE_URL: "http://127.0.0.1:54321",
         SUPABASE_PUBLISHABLE_KEY: "test-publishable-key",
         SUPABASE_SECRET_KEY: "test-secret-key",
+        OPENROUTER_API_KEY: "test-openrouter-key",
       },
     }));
   });

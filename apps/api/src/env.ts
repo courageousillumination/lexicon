@@ -5,6 +5,8 @@ export type Env = {
   SUPABASE_URL: string;
   SUPABASE_PUBLISHABLE_KEY: string;
   SUPABASE_SECRET_KEY: string;
+  OPENROUTER_API_KEY: string;
+  OPENROUTER_MODEL: string;
 };
 
 export type EnvOverrides = Partial<{
@@ -61,5 +63,11 @@ export function loadEnv(overrides: EnvOverrides = {}): Env {
     SUPABASE_URL: readString(source, "SUPABASE_URL"),
     SUPABASE_PUBLISHABLE_KEY: readString(source, "SUPABASE_PUBLISHABLE_KEY"),
     SUPABASE_SECRET_KEY: readString(source, "SUPABASE_SECRET_KEY"),
+    OPENROUTER_API_KEY: readString(source, "OPENROUTER_API_KEY"),
+    OPENROUTER_MODEL: readString(
+      source,
+      "OPENROUTER_MODEL",
+      "google/gemini-2.5-flash-lite",
+    ),
   };
 }
