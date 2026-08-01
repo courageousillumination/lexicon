@@ -14,7 +14,10 @@ import { AuthContext } from "../../contexts/AuthContext";
 import { LexiconContext } from "../../contexts/LexiconContext";
 import { useSignOut } from "../../hooks/auth";
 
-const NAV_ITEMS = [{ value: "/lexicon", label: "Lexicon" }] as const;
+const NAV_ITEMS = [
+  { value: "/lexicon", label: "Lexicon" },
+  { value: "/story", label: "Story" },
+] as const;
 
 export function AppSidebar() {
   const { user } = useContext(AuthContext)!;

@@ -27,4 +27,17 @@ describe("API routes", () => {
 
     expect(response.status).toBe(401);
   });
+
+  it("requires authentication to generate a story", async () => {
+    const response = await app.request(
+      "/api/lexicons/00000000-0000-0000-0000-000000000001/stories/generate",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      },
+    );
+
+    expect(response.status).toBe(401);
+  });
 });
