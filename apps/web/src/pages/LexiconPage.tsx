@@ -2,19 +2,14 @@ import { useContext, useState, type FormEvent } from "react";
 import {
   Alert,
   Button,
-  Divider,
   Group,
   Stack,
   Text,
   TextInput,
   Title,
 } from "@mantine/core";
-import {
-  useCreateLexiconEntry,
-  useEnhanceLexiconEntries,
-  useLexiconEntries,
-} from "../api/lexicon-entry";
-import { LexiconEntryCard } from "../components/molecules/LexiconEntryCard";
+import { useCreateLexiconEntry, useLexiconEntries } from "../api/lexicon-entry";
+import { LexiconEntryTable } from "../components/molecules/LexiconEntryTable";
 import { LexiconContext } from "../contexts/LexiconContext";
 
 function errorMessage(error: unknown, fallback: string): string | null {
@@ -28,14 +23,12 @@ export function LexiconPage() {
   const { lexicon } = useContext(LexiconContext)!;
   const entriesQuery = useLexiconEntries(lexicon?.id);
   const createEntry = useCreateLexiconEntry(lexicon?.id);
-  const enhanceEntries = useEnhanceLexiconEntries(lexicon?.id);
   const [value, setValue] = useState("");
 
   const entries = entriesQuery.data ?? [];
   const error =
     errorMessage(entriesQuery.error, "Unable to load entries") ??
-    errorMessage(createEntry.error, "Unable to create entry") ??
-    errorMessage(enhanceEntries.error, "Unable to enhance entry");
+    errorMessage(createEntry.error, "Unable to create entry");
 
   async function onCreate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -49,14 +42,6 @@ export function LexiconPage() {
       setValue("");
     } catch {
       // Error is surfaced via createEntry.error
-    }
-  }
-
-  async function onEnhance(entryId: string) {
-    try {
-      await enhanceEntries.mutateAsync([entryId]);
-    } catch {
-      // Error is surfaced via enhanceEntries.error
     }
   }
 
@@ -108,30 +93,7 @@ export function LexiconPage() {
         {!entriesQuery.isPending && entries.length === 0 ? (
           <Text c="dimmed">No entries yet. Add one above.</Text>
         ) : null}
-        {entries.map((entry, index) => {
-          const enhancing =
-            enhanceEntries.isPending &&
-            enhanceEntries.variables?.includes(entry.id);
-
-          return (
-            <Stack key={entry.id} gap="md">
-              {index > 0 ? <Divider /> : null}
-              <LexiconEntryCard
-                entry={entry}
-                actions={
-                  <Button
-                    size="xs"
-                    variant="default"
-                    loading={enhancing}
-                    onClick={() => void onEnhance(entry.id)}
-                  >
-                    Enhance
-                  </Button>
-                }
-              />
-            </Stack>
-          );
-        })}
+        <LexiconEntryTable entries={entries} />
       </Stack>
 
       {error ? (

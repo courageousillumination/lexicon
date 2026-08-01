@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createLexiconEntry,
+  deleteLexiconEntry,
   getLexiconEntries,
 } from "@lexicon/shared/repository";
 import type { CreateLexiconEntryInput, LexiconEntry } from "@lexicon/shared";
@@ -86,6 +87,34 @@ export function useEnhanceLexiconEntries(lexiconId: string | undefined) {
         (current) =>
           current?.map((entry) => updatedById.get(entry.id) ?? entry) ??
           result.entries,
+      );
+    },
+  });
+}
+
+export function useDeleteLexiconEntries(lexiconId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      if (!lexiconId) {
+        throw new Error("No lexicon selected");
+      }
+
+      await Promise.all(
+        ids.map((id) => deleteLexiconEntry(getSupabase(), id)),
+      );
+      return ids;
+    },
+    onSuccess: (ids) => {
+      if (!lexiconId) {
+        return;
+      }
+
+      const removed = new Set(ids);
+      queryClient.setQueryData<LexiconEntry[]>(
+        lexiconEntryKeys.list(lexiconId),
+        (current) => current?.filter((entry) => !removed.has(entry.id)) ?? [],
       );
     },
   });
