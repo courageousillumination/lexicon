@@ -14,8 +14,7 @@ const useSignIn = () => {
 
 const useSignOut = () => {
   const signOut = async () => {
-    const { error } = await getSupabase().auth.signOut();
-    return error ? Promise.reject(error) : Promise.resolve();
+    await getSupabase().auth.signOut();
   };
 
   return signOut;

@@ -1,5 +1,4 @@
-import type { Lexicon } from "@lexicon/shared/model";
-import { getSupabase } from "./supabase";
+import { getSupabase } from "../lib/supabase";
 
 async function authHeaders(): Promise<HeadersInit> {
   const {
@@ -15,8 +14,12 @@ async function authHeaders(): Promise<HeadersInit> {
   };
 }
 
-export async function fetchLexicons(): Promise<Lexicon[]> {
-  const response = await fetch("/api/lexicons", {
+export async function authenticatedFetch<T>(
+  input: RequestInfo | URL,
+  init?: RequestInit,
+): Promise<T> {
+  const response = await fetch(input, {
+    ...init,
     headers: await authHeaders(),
   });
 
@@ -25,9 +28,9 @@ export async function fetchLexicons(): Promise<Lexicon[]> {
       message?: string;
     } | null;
     throw new Error(
-      body?.message ?? `Failed to load lexicons (${response.status})`,
+      body?.message ?? `Failed to fetch ${input} (${response.status})`,
     );
   }
 
-  return (await response.json()) as Lexicon[];
+  return (await response.json()) as T;
 }
