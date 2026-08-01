@@ -1,10 +1,9 @@
 import { useContext, useState, type FormEvent } from "react";
 import {
   Alert,
-  Badge,
   Button,
+  Divider,
   Group,
-  List,
   Stack,
   Text,
   TextInput,
@@ -15,6 +14,7 @@ import {
   useEnhanceLexiconEntries,
   useLexiconEntries,
 } from "../api/lexicon-entry";
+import { LexiconEntryCard } from "../components/molecules/LexiconEntryCard";
 import { LexiconContext } from "../contexts/LexiconContext";
 
 function errorMessage(error: unknown, fallback: string): string | null {
@@ -100,7 +100,7 @@ export function LexiconPage() {
         </form>
       </Stack>
 
-      <Stack gap="sm" component="section" aria-labelledby="entries-heading">
+      <Stack gap="md" component="section" aria-labelledby="entries-heading">
         <Title order={2} id="entries-heading">
           Entries
         </Title>
@@ -108,44 +108,30 @@ export function LexiconPage() {
         {!entriesQuery.isPending && entries.length === 0 ? (
           <Text c="dimmed">No entries yet. Add one above.</Text>
         ) : null}
-        {entries.length > 0 ? (
-          <List spacing="sm">
-            {entries.map((entry) => {
-              const enhancing =
-                enhanceEntries.isPending &&
-                enhanceEntries.variables?.includes(entry.id);
+        {entries.map((entry, index) => {
+          const enhancing =
+            enhanceEntries.isPending &&
+            enhanceEntries.variables?.includes(entry.id);
 
-              return (
-                <List.Item key={entry.id}>
-                  <Group gap="sm" justify="space-between" wrap="wrap">
-                    <Group gap="sm">
-                      <Text>{entry.value}</Text>
-                      <Badge size="sm" variant="light">
-                        {entry.type}
-                      </Badge>
-                      <Badge size="sm" variant="outline">
-                        {entry.status}
-                      </Badge>
-                      {entry.tags.map((tag) => (
-                        <Badge key={tag} size="sm" color="gray" variant="light">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </Group>
-                    <Button
-                      size="xs"
-                      variant="default"
-                      loading={enhancing}
-                      onClick={() => void onEnhance(entry.id)}
-                    >
-                      Enhance
-                    </Button>
-                  </Group>
-                </List.Item>
-              );
-            })}
-          </List>
-        ) : null}
+          return (
+            <Stack key={entry.id} gap="md">
+              {index > 0 ? <Divider /> : null}
+              <LexiconEntryCard
+                entry={entry}
+                actions={
+                  <Button
+                    size="xs"
+                    variant="default"
+                    loading={enhancing}
+                    onClick={() => void onEnhance(entry.id)}
+                  >
+                    Enhance
+                  </Button>
+                }
+              />
+            </Stack>
+          );
+        })}
       </Stack>
 
       {error ? (

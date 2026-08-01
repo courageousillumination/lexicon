@@ -66,6 +66,7 @@ export async function enhanceEntry(
       "Prefer concise, accurate definitions suitable for study.",
       "If the language is unclear, infer it from the value script/characters.",
       "Leave variants empty when none are relevant.",
+      "Do not update tags, those should only be updated by the user.",
     ].join(" "),
     prompt: JSON.stringify(
       {
