@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["node", "vitest/globals"],
+    "lib": ["ES2023"],
+    "paths": {
+      "@lexicon/shared": ["../../packages/shared/src/index.ts"],
+      "@lexicon/shared/*": ["../../packages/shared/src/*"]
+    }
+  },
+  "include": ["src"]
+}
