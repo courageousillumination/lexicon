@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { LanguageCode } from "../model/language.js";
 import type { Lexicon } from "../model/lexicon.js";
 import type { Database, LexiconRow } from "../supabase/index.js";
 import { dataOrThrow, dataOrThrowMany, dataOrThrowMaybe } from "./common.js";
@@ -13,10 +14,15 @@ export interface LexiconSearchOptions {
 
 type Client = SupabaseClient<Database>;
 
+const LEXICON_COLUMNS =
+  "id, name, source_language, target_language, created_at, updated_at" as const;
+
 function mapRow(row: Omit<LexiconRow, "user_id">): Lexicon {
   return {
     id: row.id,
     name: row.name,
+    sourceLanguage: row.source_language as LanguageCode,
+    targetLanguage: row.target_language as LanguageCode,
   };
 }
 
@@ -26,8 +32,12 @@ export async function createLexicon(
 ): Promise<Lexicon> {
   const result = await client
     .from("lexicons")
-    .insert({ name: input.name })
-    .select("id, name, created_at, updated_at")
+    .insert({
+      name: input.name,
+      source_language: input.sourceLanguage,
+      target_language: input.targetLanguage,
+    })
+    .select(LEXICON_COLUMNS)
     .single();
 
   return dataOrThrow(result, mapRow);
@@ -41,10 +51,12 @@ export async function updateLexicon(
     .from("lexicons")
     .update({
       name: input.name,
+      source_language: input.sourceLanguage,
+      target_language: input.targetLanguage,
       updated_at: new Date().toISOString(),
     })
     .eq("id", input.id)
-    .select("id, name, created_at, updated_at")
+    .select(LEXICON_COLUMNS)
     .single();
 
   return dataOrThrow(result, mapRow);
@@ -56,7 +68,7 @@ export async function getLexicon(
 ): Promise<Lexicon | null> {
   const result = await client
     .from("lexicons")
-    .select("id, name, created_at, updated_at")
+    .select(LEXICON_COLUMNS)
     .eq("id", id)
     .maybeSingle();
 
@@ -69,7 +81,7 @@ export async function getLexicons(
 ): Promise<Lexicon[]> {
   let query = client
     .from("lexicons")
-    .select("id, name, created_at, updated_at")
+    .select(LEXICON_COLUMNS)
     .order("created_at", { ascending: false });
 
   if (options.limit !== undefined) {

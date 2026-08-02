@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import {
   Alert,
+  Anchor,
   Badge,
   Button,
   Group,
@@ -8,6 +9,7 @@ import {
   Text,
   Title,
 } from "@mantine/core";
+import { Link } from "react-router-dom";
 import { useLexiconEntries } from "../../api/lexicon-entry";
 import { useGenerateStory } from "../../api/story";
 import { LexiconContext } from "../../contexts/LexiconContext";
@@ -42,7 +44,10 @@ export function GenerateStoryPanel() {
   if (!lexicon) {
     return (
       <Text c="dimmed">
-        Create or select a lexicon in the sidebar to generate a story.
+        <Anchor component={Link} to="/lexicons">
+          Create a lexicon
+        </Anchor>{" "}
+        to generate a story, or select one in the sidebar.
       </Text>
     );
   }

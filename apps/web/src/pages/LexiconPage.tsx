@@ -18,21 +18,10 @@ export function LexiconPage() {
   const entries = entriesQuery.data ?? [];
   const error = errorMessage(entriesQuery.error, "Unable to load entries");
 
-  if (!lexicon) {
-    return (
-      <Stack gap="md">
-        <Title order={1}>Lexicon</Title>
-        <Text c="dimmed">
-          Create or select a lexicon in the sidebar to get started.
-        </Text>
-      </Stack>
-    );
-  }
-
   return (
     <Stack gap="xl">
       <Stack gap="xs">
-        <Title order={1}>{lexicon.name}</Title>
+        <Title order={1}>{lexicon!.name}</Title>
         <Text c="dimmed">Lexical entries in this lexicon.</Text>
       </Stack>
 

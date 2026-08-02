@@ -1,34 +1,30 @@
 import { useContext, useState } from "react";
 import {
+  Anchor,
   AppShell,
   Button,
+  Divider,
   NavLink,
-  Select,
   Stack,
   Text,
   Title,
 } from "@mantine/core";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useLexicons } from "../../api/lexicon";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
-import { LexiconContext } from "../../contexts/LexiconContext";
 import { useSignOut } from "../../hooks/auth";
+import { LexiconSwitcher } from "./LexiconSwitcher";
 
 const NAV_ITEMS = [
-  { value: "/lexicon", label: "Lexicon" },
+  { value: "/lexicon", label: "Entries" },
   { value: "/story", label: "Story" },
 ] as const;
 
 export function AppSidebar() {
   const { user } = useContext(AuthContext)!;
-  const { lexicon, setLexiconId } = useContext(LexiconContext)!;
-  const lexiconsQuery = useLexicons();
   const location = useLocation();
   const navigate = useNavigate();
   const signOut = useSignOut();
   const [signingOut, setSigningOut] = useState(false);
-
-  const lexicons = lexiconsQuery.data ?? [];
 
   async function onSignOut() {
     setSigningOut(true);
@@ -42,10 +38,17 @@ export function AppSidebar() {
   return (
     <AppShell.Navbar p="md">
       <AppShell.Section>
-        <Title order={3}>Lexicon</Title>
+        <Stack gap="sm">
+          <Anchor component={Link} to="/" underline="never" c="inherit">
+            <Title order={3}>Lexicon</Title>
+          </Anchor>
+          <LexiconSwitcher />
+        </Stack>
       </AppShell.Section>
 
-      <AppShell.Section grow mt="md">
+      <Divider my="md" />
+
+      <AppShell.Section grow>
         <Stack gap="xs">
           {NAV_ITEMS.map((item) => (
             <NavLink
@@ -60,28 +63,6 @@ export function AppSidebar() {
 
       <AppShell.Section>
         <Stack gap="sm">
-          <Select
-            label="Active lexicon"
-            placeholder={
-              lexiconsQuery.isPending
-                ? "Loading…"
-                : lexicons.length === 0
-                  ? "No lexicons yet"
-                  : "Select a lexicon"
-            }
-            data={lexicons.map((item) => ({
-              value: item.id,
-              label: item.name,
-            }))}
-            value={lexicon?.id ?? null}
-            onChange={(value) => {
-              if (value) {
-                setLexiconId(value);
-              }
-            }}
-            disabled={lexicons.length === 0}
-            searchable
-          />
           <Text size="sm" c="dimmed" lineClamp={2}>
             {user?.email}
           </Text>

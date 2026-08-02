@@ -1,4 +1,5 @@
 import { LexiconEntry } from "./lexicon-entry";
+import type { LanguageCode } from "./language";
 
 /**
  * The Lexicon is the core model of lexicon. It represents all of the lexemes
@@ -10,6 +11,12 @@ export interface Lexicon {
 
   /** Human-readable name of the lexicon. */
   name: string;
+
+  /** Language the learner already knows (definitions, glosses). */
+  sourceLanguage: LanguageCode;
+
+  /** Language being learned (entry values). */
+  targetLanguage: LanguageCode;
 
   /**
    * Entries in the lexicon.

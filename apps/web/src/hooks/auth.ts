@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { getSupabase } from "../lib/supabase";
 
 const useSignIn = () => {
@@ -13,8 +14,11 @@ const useSignIn = () => {
 };
 
 const useSignOut = () => {
+  const queryClient = useQueryClient();
+
   const signOut = async () => {
     await getSupabase().auth.signOut();
+    queryClient.clear();
   };
 
   return signOut;
