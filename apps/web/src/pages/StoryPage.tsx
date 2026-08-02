@@ -1,21 +1,11 @@
-import { useContext } from "react";
-import { Stack, Title } from "@mantine/core";
+import { Stack } from "@mantine/core";
+import { PageHeader } from "../components/atoms/PageHeader";
 import { GenerateStoryPanel } from "../components/organisms/GenerateStoryPanel";
-import { LexiconContext } from "../contexts/LexiconContext";
 
 export function StoryPage() {
-  const { lexicon } = useContext(LexiconContext)!;
-
   return (
     <Stack gap="xl">
-      <Stack gap="xs">
-        <Title order={1}>Story</Title>
-        {lexicon ? (
-          <Title order={2} c="dimmed" fw={400}>
-            {lexicon.name}
-          </Title>
-        ) : null}
-      </Stack>
+      <PageHeader title="Story" />
       <GenerateStoryPanel />
     </Stack>
   );

@@ -1,6 +1,18 @@
 import { useContext } from "react";
-import { Alert, Stack, Text, Title } from "@mantine/core";
+import {
+  Alert,
+  Badge,
+  Center,
+  Loader,
+  Stack,
+  Text,
+  ThemeIcon,
+  Title,
+} from "@mantine/core";
+import { IconBooks } from "@tabler/icons-react";
+import { languageLabel } from "@lexicon/shared/model";
 import { useLexiconEntries } from "../api/lexicon-entry";
+import { PageHeader } from "../components/atoms/PageHeader";
 import { AddLexiconEntriesForm } from "../components/organisms/AddLexiconEntriesForm";
 import { LexiconEntryTable } from "../components/molecules/LexiconEntryTable";
 import { LexiconContext } from "../contexts/LexiconContext";
@@ -20,10 +32,15 @@ export function LexiconPage() {
 
   return (
     <Stack gap="xl">
-      <Stack gap="xs">
-        <Title order={1}>{lexicon!.name}</Title>
-        <Text c="dimmed">Lexical entries in this lexicon.</Text>
-      </Stack>
+      <PageHeader
+        title={lexicon!.name}
+        aside={
+          <Badge variant="light" size="lg" tt="none">
+            {languageLabel(lexicon!.sourceLanguage)} →{" "}
+            {languageLabel(lexicon!.targetLanguage)}
+          </Badge>
+        }
+      />
 
       <AddLexiconEntriesForm />
 
@@ -31,9 +48,23 @@ export function LexiconPage() {
         <Title order={2} id="entries-heading">
           Entries
         </Title>
-        {entriesQuery.isPending ? <Text c="dimmed">Loading…</Text> : null}
+        {entriesQuery.isPending ? (
+          <Center py="xl">
+            <Loader aria-label="Loading entries" />
+          </Center>
+        ) : null}
         {!entriesQuery.isPending && entries.length === 0 ? (
-          <Text c="dimmed">No entries yet. Add some above.</Text>
+          <Center py="xl">
+            <Stack align="center" gap="sm" maw={320}>
+              <ThemeIcon size={48} radius="md" variant="light" color="book">
+                <IconBooks size={26} stroke={1.5} />
+              </ThemeIcon>
+              <Text ta="center" c="dimmed">
+                No entries yet. Add a word above, or switch to Bulk to paste
+                several at once—one value per line.
+              </Text>
+            </Stack>
+          </Center>
         ) : null}
         <LexiconEntryTable entries={entries} />
       </Stack>

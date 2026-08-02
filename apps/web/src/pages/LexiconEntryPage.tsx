@@ -1,4 +1,16 @@
-import { Alert, Anchor, Button, Stack, Text, Title } from "@mantine/core";
+import {
+  Alert,
+  Anchor,
+  Button,
+  Center,
+  Group,
+  Loader,
+  Paper,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
+import { IconArrowLeft, IconSparkles } from "@tabler/icons-react";
 import { Link, useParams } from "react-router-dom";
 import {
   useEnhanceLexiconEntries,
@@ -24,7 +36,11 @@ export function LexiconEntryPage() {
   );
 
   if (entryQuery.isPending) {
-    return <Text c="dimmed">Loading…</Text>;
+    return (
+      <Center py="xl">
+        <Loader aria-label="Loading entry" />
+      </Center>
+    );
   }
 
   if (loadError) {
@@ -54,21 +70,27 @@ export function LexiconEntryPage() {
   return (
     <Stack gap="md">
       <Anchor component={Link} to="/lexicon" size="sm">
-        ← Entries
+        <Group gap={6} component="span">
+          <IconArrowLeft size={14} stroke={1.8} />
+          Entries
+        </Group>
       </Anchor>
-      <LexiconEntryCard
-        entry={entry}
-        actions={
-          <Button
-            size="xs"
-            variant="default"
-            loading={enhanceEntries.isPending}
-            onClick={() => void enhanceEntries.mutateAsync([entry.id])}
-          >
-            Enhance
-          </Button>
-        }
-      />
+      <Paper p="lg">
+        <LexiconEntryCard
+          entry={entry}
+          actions={
+            <Button
+              size="sm"
+              variant="light"
+              leftSection={<IconSparkles size={16} stroke={1.6} />}
+              loading={enhanceEntries.isPending}
+              onClick={() => void enhanceEntries.mutateAsync([entry.id])}
+            >
+              Enhance
+            </Button>
+          }
+        />
+      </Paper>
       {enhanceError ? (
         <Alert color="red" title="Something went wrong">
           {enhanceError}

@@ -1,15 +1,16 @@
 import {
+  Box,
   Button,
   Center,
-  Container,
+  Paper,
   PasswordInput,
   Stack,
-  Text,
   TextInput,
   Title,
 } from "@mantine/core";
 import { useContext } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
+import { IconBook2, IconLogin } from "@tabler/icons-react";
 
 import { useForm } from "@mantine/form";
 import { AuthContext } from "../contexts/AuthContext";
@@ -37,44 +38,65 @@ export function SignInPage() {
   }
 
   return (
-    <Center mih="100vh" px="md">
-      <Container size={400} w="100%" p={0}>
-        <Stack gap="md">
-          <Title order={1}>Lexicon</Title>
-          <div>
-            <Title order={2}>Sign in</Title>
-            <Text c="dimmed" mt="xs">
-              Enter your email and password to continue.
-            </Text>
-          </div>
+    <Box
+      mih="100vh"
+      px="md"
+      style={{
+        backgroundImage:
+          "linear-gradient(155deg, var(--mantine-color-book-1) 0%, var(--mantine-color-book-0) 42%, #E8DCC8 100%)",
+      }}
+    >
+      <Center mih="100vh">
+        <Stack gap="xl" maw={420} w="100%">
+          <Stack gap="xs" align="center">
+            <IconBook2
+              size={40}
+              stroke={1.5}
+              color="var(--mantine-color-book-7)"
+            />
+            <Title order={1} ta="center">
+              Lexicon
+            </Title>
+          </Stack>
 
-          <form onSubmit={onSubmit}>
+          <Paper p="xl" shadow="sm">
             <Stack gap="md">
-              <TextInput
-                label="Email"
-                type="email"
-                name="email"
-                autoComplete="email"
-                required
-                {...form.getInputProps("email")}
-              />
+              <Title order={2}>Sign in</Title>
 
-              <PasswordInput
-                label="Password"
-                name="password"
-                autoComplete="current-password"
-                required
-                minLength={6}
-                {...form.getInputProps("password")}
-              />
+              <form onSubmit={onSubmit}>
+                <Stack gap="md">
+                  <TextInput
+                    label="Email"
+                    type="email"
+                    name="email"
+                    autoComplete="email"
+                    required
+                    {...form.getInputProps("email")}
+                  />
 
-              <Button type="submit" fullWidth loading={form.submitting}>
-                Sign in
-              </Button>
+                  <PasswordInput
+                    label="Password"
+                    name="password"
+                    autoComplete="current-password"
+                    required
+                    minLength={6}
+                    {...form.getInputProps("password")}
+                  />
+
+                  <Button
+                    type="submit"
+                    fullWidth
+                    loading={form.submitting}
+                    leftSection={<IconLogin size={16} stroke={1.6} />}
+                  >
+                    Sign in
+                  </Button>
+                </Stack>
+              </form>
             </Stack>
-          </form>
+          </Paper>
         </Stack>
-      </Container>
-    </Center>
+      </Center>
+    </Box>
   );
 }

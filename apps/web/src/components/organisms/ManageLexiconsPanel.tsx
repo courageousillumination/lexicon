@@ -2,14 +2,18 @@ import { useContext, useState } from "react";
 import {
   Alert,
   Button,
+  Center,
   Group,
+  Paper,
   Select,
   Stack,
   Text,
   TextInput,
+  ThemeIcon,
   Title,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { IconBook2, IconPencil } from "@tabler/icons-react";
 import {
   LANGUAGE_OPTIONS,
   languageLabel,
@@ -77,54 +81,56 @@ function CreateLexiconForm({ onCreated }: { onCreated: (id: string) => void }) {
   });
 
   return (
-    <Stack
-      gap="sm"
+    <Paper
+      p="lg"
       component="section"
       aria-labelledby="create-lexicon-heading"
     >
-      <Title order={2} id="create-lexicon-heading">
-        Create lexicon
-      </Title>
-      <form onSubmit={onSubmit}>
-        <Stack gap="sm">
-          <TextInput
-            label="Name"
-            name="name"
-            required
-            placeholder="e.g. Mandarin"
-            {...form.getInputProps("name")}
-          />
-          <Group grow align="flex-start">
-            <Select
-              label="Source language"
-              name="sourceLanguage"
+      <Stack gap="md">
+        <Title order={2} id="create-lexicon-heading">
+          Create lexicon
+        </Title>
+        <form onSubmit={onSubmit}>
+          <Stack gap="sm">
+            <TextInput
+              label="Name"
+              name="name"
               required
-              data={LANGUAGE_SELECT_DATA}
-              allowDeselect={false}
-              {...form.getInputProps("sourceLanguage")}
+              placeholder="e.g. Mandarin"
+              {...form.getInputProps("name")}
             />
-            <Select
-              label="Target language"
-              name="targetLanguage"
-              required
-              data={LANGUAGE_SELECT_DATA}
-              allowDeselect={false}
-              {...form.getInputProps("targetLanguage")}
-            />
-          </Group>
-          <Group justify="flex-end">
-            <Button type="submit" loading={form.submitting}>
-              Create
-            </Button>
-          </Group>
-        </Stack>
-      </form>
-      {error ? (
-        <Alert color="red" title="Something went wrong">
-          {error}
-        </Alert>
-      ) : null}
-    </Stack>
+            <Group grow align="flex-start">
+              <Select
+                label="Source language"
+                name="sourceLanguage"
+                required
+                data={LANGUAGE_SELECT_DATA}
+                allowDeselect={false}
+                {...form.getInputProps("sourceLanguage")}
+              />
+              <Select
+                label="Target language"
+                name="targetLanguage"
+                required
+                data={LANGUAGE_SELECT_DATA}
+                allowDeselect={false}
+                {...form.getInputProps("targetLanguage")}
+              />
+            </Group>
+            <Group justify="flex-end">
+              <Button type="submit" loading={form.submitting}>
+                Create
+              </Button>
+            </Group>
+          </Stack>
+        </form>
+        {error ? (
+          <Alert color="red" title="Something went wrong">
+            {error}
+          </Alert>
+        ) : null}
+      </Stack>
+    </Paper>
   );
 }
 
@@ -162,80 +168,93 @@ function EditLexiconRow({ lexicon }: { lexicon: Lexicon }) {
 
   if (!editing) {
     return (
-      <Group justify="space-between" align="center" wrap="nowrap">
-        <Stack gap={2} style={{ minWidth: 0 }}>
-          <Text truncate>{lexicon.name}</Text>
-          <Text size="sm" c="dimmed">
-            {languageLabel(lexicon.sourceLanguage)} →{" "}
-            {languageLabel(lexicon.targetLanguage)}
-          </Text>
-        </Stack>
-        <Button
-          variant="default"
-          size="xs"
-          onClick={() => {
-            syncFormFromLexicon();
-            setEditing(true);
-          }}
-        >
-          Edit
-        </Button>
-      </Group>
+      <Paper p="md">
+        <Group justify="space-between" align="center" wrap="nowrap">
+          <Group gap="md" wrap="nowrap" style={{ minWidth: 0 }}>
+            <ThemeIcon size={40} radius="md" variant="light" color="book">
+              <IconBook2 size={20} stroke={1.6} />
+            </ThemeIcon>
+            <Stack gap={2} style={{ minWidth: 0 }}>
+              <Text fw={600} truncate>
+                {lexicon.name}
+              </Text>
+              <Text size="sm" c="dimmed">
+                {languageLabel(lexicon.sourceLanguage)} →{" "}
+                {languageLabel(lexicon.targetLanguage)}
+              </Text>
+            </Stack>
+          </Group>
+          <Button
+            variant="light"
+            color="gray"
+            size="xs"
+            leftSection={<IconPencil size={14} stroke={1.6} />}
+            onClick={() => {
+              syncFormFromLexicon();
+              setEditing(true);
+            }}
+          >
+            Edit
+          </Button>
+        </Group>
+      </Paper>
     );
   }
 
   return (
-    <Stack gap="xs">
-      <form onSubmit={onSubmit}>
-        <Stack gap="sm">
-          <TextInput
-            label="Name"
-            name="name"
-            required
-            {...form.getInputProps("name")}
-          />
-          <Group grow align="flex-start">
-            <Select
-              label="Source language"
-              name="sourceLanguage"
+    <Paper p="md">
+      <Stack gap="xs">
+        <form onSubmit={onSubmit}>
+          <Stack gap="sm">
+            <TextInput
+              label="Name"
+              name="name"
               required
-              data={LANGUAGE_SELECT_DATA}
-              allowDeselect={false}
-              {...form.getInputProps("sourceLanguage")}
+              {...form.getInputProps("name")}
             />
-            <Select
-              label="Target language"
-              name="targetLanguage"
-              required
-              data={LANGUAGE_SELECT_DATA}
-              allowDeselect={false}
-              {...form.getInputProps("targetLanguage")}
-            />
-          </Group>
-          <Group justify="flex-end" gap="sm">
-            <Button
-              type="button"
-              size="sm"
-              variant="default"
-              onClick={() => {
-                syncFormFromLexicon();
-                setEditing(false);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" size="sm" loading={form.submitting}>
-              Save
-            </Button>
-          </Group>
-        </Stack>
-      </form>
-      {error ? (
-        <Alert color="red" title="Something went wrong">
-          {error}
-        </Alert>
-      ) : null}
-    </Stack>
+            <Group grow align="flex-start">
+              <Select
+                label="Source language"
+                name="sourceLanguage"
+                required
+                data={LANGUAGE_SELECT_DATA}
+                allowDeselect={false}
+                {...form.getInputProps("sourceLanguage")}
+              />
+              <Select
+                label="Target language"
+                name="targetLanguage"
+                required
+                data={LANGUAGE_SELECT_DATA}
+                allowDeselect={false}
+                {...form.getInputProps("targetLanguage")}
+              />
+            </Group>
+            <Group justify="flex-end" gap="sm">
+              <Button
+                type="button"
+                size="sm"
+                variant="default"
+                onClick={() => {
+                  syncFormFromLexicon();
+                  setEditing(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" size="sm" loading={form.submitting}>
+                Save
+              </Button>
+            </Group>
+          </Stack>
+        </form>
+        {error ? (
+          <Alert color="red" title="Something went wrong">
+            {error}
+          </Alert>
+        ) : null}
+      </Stack>
+    </Paper>
   );
 }
 
@@ -262,9 +281,12 @@ export function ManageLexiconsPanel() {
         </Title>
         {lexiconsQuery.isPending ? <Text c="dimmed">Loading…</Text> : null}
         {!lexiconsQuery.isPending && lexicons.length === 0 ? (
-          <Text c="dimmed">
-            No lexicons yet. Create one above to get started.
-          </Text>
+          <Center py="md">
+            <Text c="dimmed" ta="center" maw={360}>
+              No lexicons yet. Create one above with a name and language pair to
+              start collecting vocabulary.
+            </Text>
+          </Center>
         ) : null}
         <Stack gap="sm">
           {lexicons.map((lexicon) => (

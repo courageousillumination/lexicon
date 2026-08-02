@@ -6,10 +6,12 @@ import {
   Button,
   Group,
   HoverCard,
+  Paper,
   Stack,
   Text,
   Title,
 } from "@mantine/core";
+import { IconNotebook } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import type { LexiconEntry } from "@lexicon/shared/model";
 import { useLexiconEntries } from "../../api/lexicon-entry";
@@ -63,89 +65,99 @@ export function GenerateStoryPanel() {
   }
 
   return (
-    <Stack gap="md">
-      <Text c="dimmed">
-        Generate a short story using only vocabulary from{" "}
-        <Text span fw={500}>
-          {lexicon.name}
-        </Text>
-        .
-      </Text>
+    <Stack gap="lg">
+      <Paper p="lg">
+        <Stack gap="md">
+          <Text c="dimmed">
+            Generate a short story using only vocabulary from{" "}
+            <Text span fw={600}>
+              {lexicon.name}
+            </Text>
+            .
+          </Text>
 
-      <Group>
-        <Button
-          onClick={() => void onGenerate()}
-          loading={generateStory.isPending}
-          disabled={entryCount === 0 || entriesQuery.isPending}
-        >
-          Generate story
-        </Button>
-        <Text size="sm" c="dimmed">
-          {entriesQuery.isPending
-            ? "Loading vocabulary…"
-            : entryCount === 0
-              ? "Add entries first"
-              : `${entryCount} vocabulary ${entryCount === 1 ? "item" : "items"} available`}
-        </Text>
-      </Group>
-
-      {error ? (
-        <Alert color="red" title="Something went wrong">
-          {error}
-        </Alert>
-      ) : null}
-
-      {story ? (
-        <Stack gap="sm">
-          <Title order={3}>{story.title}</Title>
-          <Text style={{ whiteSpace: "pre-wrap" }}>{story.story}</Text>
-          {story.wordsUsed.length > 0 ? (
-            <Stack gap="xs">
+          <Group>
+            <Button
+              leftSection={<IconNotebook size={16} stroke={1.6} />}
+              onClick={() => void onGenerate()}
+              loading={generateStory.isPending}
+              disabled={entryCount === 0 || entriesQuery.isPending}
+            >
+              Generate story
+            </Button>
+            {!entriesQuery.isPending && entryCount === 0 ? (
               <Text size="sm" c="dimmed">
-                Words used
+                Add some entries to this lexicon first.
               </Text>
-              <Group gap="xs">
-                {story.wordsUsed.map((word) => {
-                  const entry = entryByValue(entriesQuery.data, word);
-                  if (!entry) {
-                    return (
-                      <Badge key={word} variant="light">
-                        {word}
-                      </Badge>
-                    );
-                  }
+            ) : null}
+          </Group>
 
-                  return (
-                    <HoverCard
-                      key={word}
-                      width={320}
-                      shadow="md"
-                      openDelay={200}
-                      closeDelay={100}
-                      withinPortal
-                    >
-                      <HoverCard.Target>
-                        <Badge
-                          component={Link}
-                          to={`/lexicon/entries/${entry.id}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          variant="light"
-                          style={{ cursor: "pointer", textDecoration: "none" }}
-                        >
-                          {word}
-                        </Badge>
-                      </HoverCard.Target>
-                      <HoverCard.Dropdown>
-                        <LexiconEntryCard entry={entry} />
-                      </HoverCard.Dropdown>
-                    </HoverCard>
-                  );
-                })}
-              </Group>
-            </Stack>
+          {error ? (
+            <Alert color="red" title="Something went wrong">
+              {error}
+            </Alert>
           ) : null}
         </Stack>
+      </Paper>
+
+      {story ? (
+        <Paper p="lg">
+          <Stack gap="md">
+            <Title order={2}>{story.title}</Title>
+            <Text style={{ whiteSpace: "pre-wrap" }} lh={1.7}>
+              {story.story}
+            </Text>
+            {story.wordsUsed.length > 0 ? (
+              <Stack gap="xs">
+                <Text size="sm" c="dimmed" fw={600} tt="uppercase">
+                  Words used
+                </Text>
+                <Group gap="xs">
+                  {story.wordsUsed.map((word) => {
+                    const entry = entryByValue(entriesQuery.data, word);
+                    if (!entry) {
+                      return (
+                        <Badge key={word} variant="light">
+                          {word}
+                        </Badge>
+                      );
+                    }
+
+                    return (
+                      <HoverCard
+                        key={word}
+                        width={320}
+                        shadow="md"
+                        openDelay={200}
+                        closeDelay={100}
+                        withinPortal
+                      >
+                        <HoverCard.Target>
+                          <Badge
+                            component={Link}
+                            to={`/lexicon/entries/${entry.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            variant="light"
+                            style={{
+                              cursor: "pointer",
+                              textDecoration: "none",
+                            }}
+                          >
+                            {word}
+                          </Badge>
+                        </HoverCard.Target>
+                        <HoverCard.Dropdown>
+                          <LexiconEntryCard entry={entry} />
+                        </HoverCard.Dropdown>
+                      </HoverCard>
+                    );
+                  })}
+                </Group>
+              </Stack>
+            ) : null}
+          </Stack>
+        </Paper>
       ) : null}
     </Stack>
   );

@@ -3,6 +3,7 @@ import {
   Alert,
   Button,
   Group,
+  Paper,
   Stack,
   Tabs,
   Text,
@@ -11,6 +12,7 @@ import {
   Title,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { IconList, IconPlus } from "@tabler/icons-react";
 import { useCreateLexiconEntries } from "../../api/lexicon-entry";
 import { LexiconContext } from "../../contexts/LexiconContext";
 
@@ -80,73 +82,88 @@ export function AddLexiconEntriesForm() {
   }
 
   return (
-    <Stack gap="sm" component="section" aria-labelledby="add-entry-heading">
-      <Title order={2} id="add-entry-heading">
-        Add entries
-      </Title>
+    <Paper p="lg" component="section" aria-labelledby="add-entry-heading">
+      <Stack gap="md">
+        <Title order={2} id="add-entry-heading">
+          Add entries
+        </Title>
 
-      <Tabs defaultValue="individual">
-        <Tabs.List>
-          <Tabs.Tab value="individual">Individual</Tabs.Tab>
-          <Tabs.Tab value="bulk">Bulk</Tabs.Tab>
-        </Tabs.List>
+        <Tabs defaultValue="individual">
+          <Tabs.List>
+            <Tabs.Tab
+              value="individual"
+              leftSection={<IconPlus size={14} stroke={1.6} />}
+            >
+              Individual
+            </Tabs.Tab>
+            <Tabs.Tab
+              value="bulk"
+              leftSection={<IconList size={14} stroke={1.6} />}
+            >
+              Bulk
+            </Tabs.Tab>
+          </Tabs.List>
 
-        <Tabs.Panel value="individual" pt="md">
-          <form onSubmit={onCreateIndividual}>
-            <Group align="flex-end" gap="sm" wrap="nowrap">
-              <TextInput
-                label="Value"
-                name="value"
-                required
-                flex={1}
-                placeholder="e.g. 你好"
-                {...individualForm.getInputProps("value")}
-              />
-              <Button type="submit" loading={individualForm.submitting}>
-                Add
-              </Button>
-            </Group>
-          </form>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="bulk" pt="md">
-          <form onSubmit={onCreateBulk}>
-            <Stack gap="sm">
-              <Textarea
-                label="Values"
-                name="values"
-                required
-                minRows={6}
-                autosize
-                maxRows={16}
-                placeholder={"你好\n谢谢\n再见"}
-                description="One entry value per line."
-                {...bulkForm.getInputProps("values")}
-              />
-              <Group justify="space-between" align="center">
-                <Text size="sm" c="dimmed">
-                  {bulkCount === 0
-                    ? "No values yet"
-                    : `${bulkCount} ${bulkCount === 1 ? "entry" : "entries"} ready`}
-                </Text>
+          <Tabs.Panel value="individual" pt="md">
+            <form onSubmit={onCreateIndividual}>
+              <Group align="flex-end" gap="sm" wrap="nowrap">
+                <TextInput
+                  label="Value"
+                  name="value"
+                  required
+                  flex={1}
+                  placeholder="e.g. 你好"
+                  {...individualForm.getInputProps("value")}
+                />
                 <Button
                   type="submit"
-                  loading={bulkForm.submitting}
-                  disabled={bulkCount === 0}
+                  loading={individualForm.submitting}
+                  disabled={individualForm.values.value.trim().length === 0}
                 >
-                  Add entries
+                  Add
                 </Button>
               </Group>
-            </Stack>
-          </form>
-        </Tabs.Panel>
-      </Tabs>
+            </form>
+          </Tabs.Panel>
 
-      {error ? (
-        <Alert color="red" title="Something went wrong">
-          {error}
-        </Alert>
-      ) : null}
-    </Stack>
+          <Tabs.Panel value="bulk" pt="md">
+            <form onSubmit={onCreateBulk}>
+              <Stack gap="sm">
+                <Textarea
+                  label="Values"
+                  name="values"
+                  required
+                  minRows={6}
+                  autosize
+                  maxRows={16}
+                  placeholder={"你好\n谢谢\n再见"}
+                  {...bulkForm.getInputProps("values")}
+                />
+                <Group justify="space-between" align="center">
+                  <Text size="sm" c="dimmed">
+                    {bulkCount > 0
+                      ? `${bulkCount} ${bulkCount === 1 ? "entry" : "entries"} ready`
+                      : null}
+                  </Text>
+                  <Button
+                    type="submit"
+                    loading={bulkForm.submitting}
+                    disabled={bulkCount === 0}
+                  >
+                    Add entries
+                  </Button>
+                </Group>
+              </Stack>
+            </form>
+          </Tabs.Panel>
+        </Tabs>
+
+        {error ? (
+          <Alert color="red" title="Something went wrong">
+            {error}
+          </Alert>
+        ) : null}
+      </Stack>
+    </Paper>
   );
 }
