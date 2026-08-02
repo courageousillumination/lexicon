@@ -1,32 +1,41 @@
 import { generateText, Output, type LanguageModel } from "ai";
 import { z } from "zod";
-import type { LexiconEntry } from "@lexicon/shared/model";
+import {
+  languageLabel,
+  type LanguageCode,
+  type LexiconEntry,
+} from "@lexicon/shared/model";
 
 const ENHANCED_TAG = "enhanced";
 
 const enhancedFieldsSchema = z.object({
+  value: z.string().describe("Entry value in the target language"),
   type: z
     .enum(["morpheme", "lexeme", "phrase"])
     .describe("Best lexical unit type for this entry"),
   pronunciation: z
     .string()
     .describe(
-      "Pronunciation guide appropriate for the language (e.g. pinyin, IPA)",
+      "Pronunciation guide appropriate for the entry language (e.g. pinyin, IPA, romaji)",
     ),
   language: z
     .string()
-    .describe("Language of the entry value (e.g. zh-CN, en, ja)"),
+    .describe(
+      "BCP 47 language tag of the entry value (must be the lexicon source or target language)",
+    ),
   definitions: z
     .array(
       z.object({
         definition: z.string().describe("Clear definition of the entry"),
         language: z
           .string()
-          .describe("Language of this definition text (e.g. en)"),
+          .describe("BCP 47 language tag of this definition text"),
       }),
     )
     .min(1)
-    .describe("One or more definitions, usually including English"),
+    .describe(
+      "One or more definitions; include at least one in the learner's source language",
+    ),
   variants: z
     .array(
       z.object({
@@ -41,6 +50,11 @@ const enhancedFieldsSchema = z.object({
     .describe("Short topical or grammatical tags for the entry"),
 });
 
+export type EnhanceEntryContext = {
+  sourceLanguage: LanguageCode;
+  targetLanguage: LanguageCode;
+};
+
 function uniqueTags(tags: string[]): string[] {
   return [...new Set(tags.filter((tag) => tag.trim().length > 0))];
 }
@@ -50,8 +64,12 @@ function uniqueTags(tags: string[]): string[] {
  */
 export async function enhanceEntry(
   entry: LexiconEntry,
+  context: EnhanceEntryContext,
   model: LanguageModel,
 ): Promise<LexiconEntry> {
+  const sourceLabel = languageLabel(context.sourceLanguage);
+  const targetLabel = languageLabel(context.targetLanguage);
+
   const { output } = await generateText({
     model,
     output: Output.object({
@@ -64,7 +82,10 @@ export async function enhanceEntry(
       "Given an entry value (and any existing fields), fill in missing linguistic details.",
       "Preserve the meaning of the given value; do not invent a different word.",
       "Prefer concise, accurate definitions suitable for study.",
-      "If the language is unclear, infer it from the value script/characters.",
+      `This lexicon's source language (learner knows) is ${sourceLabel} (${context.sourceLanguage}).`,
+      `This lexicon's target language (being learned) is ${targetLabel} (${context.targetLanguage}).`,
+      "The entry value may be written in either the source or the target language: when updating, always make the value the target language.",
+      "Provide at least one definition in the source language.",
       "Leave variants empty when none are relevant.",
       "Do not update tags, those should only be updated by the user.",
     ].join(" "),
@@ -77,6 +98,10 @@ export async function enhanceEntry(
         definitions: entry.definitions,
         variants: entry.variants,
         tags: entry.tags,
+        lexicon: {
+          sourceLanguage: context.sourceLanguage,
+          targetLanguage: context.targetLanguage,
+        },
       },
       null,
       2,
@@ -89,6 +114,7 @@ export async function enhanceEntry(
 
   return {
     ...entry,
+    value: output.value,
     type: output.type,
     pronunciation: output.pronunciation,
     language: output.language,

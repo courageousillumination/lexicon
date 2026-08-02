@@ -52,6 +52,12 @@ export function createLexiconsRoutes(config: Env): Hono<AppEnv> {
     }
 
     const client = c.var.supabaseContext.supabase;
+    const lexicon = await getLexicon(client, lexiconId);
+
+    if (!lexicon) {
+      return c.json({ message: "Lexicon not found" }, 404);
+    }
+
     const entries = await getLexiconEntries(client, { lexiconId, ids });
 
     if (entries.length !== ids.length) {
@@ -61,8 +67,13 @@ export function createLexiconsRoutes(config: Env): Hono<AppEnv> {
       );
     }
 
+    const languageContext = {
+      sourceLanguage: lexicon.sourceLanguage,
+      targetLanguage: lexicon.targetLanguage,
+    };
+
     const enhanced = await Promise.all(
-      entries.map((entry) => enhanceEntry(entry, model)),
+      entries.map((entry) => enhanceEntry(entry, languageContext, model)),
     );
 
     const updated = await Promise.all(
