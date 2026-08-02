@@ -8,11 +8,7 @@ import {
 import type { Database } from "@lexicon/shared/supabase";
 import type { AppEnv } from "../app-env.js";
 import type { Env } from "../env.js";
-import {
-  createAiModel,
-  enhanceEntry,
-  generateStory,
-} from "../ai/index.js";
+import { createAiModel, enhanceEntry, generateStory } from "../ai/index.js";
 import { supabaseEnv } from "../supabase-env.js";
 
 type EnhanceEntriesBody = {
@@ -37,7 +33,9 @@ export function createLexiconsRoutes(config: Env): Hono<AppEnv> {
 
   routes.post("/:lexiconId/entries/enhance", async (c) => {
     const lexiconId = c.req.param("lexiconId");
-    const body = (await c.req.json().catch(() => null)) as EnhanceEntriesBody | null;
+    const body = (await c.req
+      .json()
+      .catch(() => null)) as EnhanceEntriesBody | null;
     const ids = body?.ids;
 
     if (
@@ -72,12 +70,11 @@ export function createLexiconsRoutes(config: Env): Hono<AppEnv> {
       targetLanguage: lexicon.targetLanguage,
     };
 
-    const enhanced = await Promise.all(
-      entries.map((entry) => enhanceEntry(entry, languageContext, model)),
-    );
-
     const updated = await Promise.all(
-      enhanced.map((entry) => updateLexiconEntry(client, entry)),
+      entries.map(async (entry) => {
+        const enhanced = await enhanceEntry(entry, languageContext, model);
+        return updateLexiconEntry(client, enhanced);
+      }),
     );
 
     return c.json({ entries: updated });
@@ -85,7 +82,9 @@ export function createLexiconsRoutes(config: Env): Hono<AppEnv> {
 
   routes.post("/:lexiconId/stories/generate", async (c) => {
     const lexiconId = c.req.param("lexiconId");
-    const body = (await c.req.json().catch(() => ({}))) as GenerateStoryBody | null;
+    const body = (await c.req
+      .json()
+      .catch(() => ({}))) as GenerateStoryBody | null;
     const ids = body?.ids;
 
     if (

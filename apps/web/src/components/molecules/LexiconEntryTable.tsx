@@ -2,9 +2,18 @@ import { useContext } from "react";
 import {
   flexRender,
   getCoreRowModel,
+  getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { Button, Group, Menu, Table, Text } from "@mantine/core";
+import {
+  Button,
+  Group,
+  Menu,
+  Pagination,
+  Stack,
+  Table,
+  Text,
+} from "@mantine/core";
 import type { LexiconEntry } from "@lexicon/shared/model";
 import {
   useDeleteLexiconEntries,
@@ -28,6 +37,7 @@ export function LexiconEntryTable({ entries }: LexiconEntryTableProps) {
     columns: lexiconEntryColumns,
     enableRowSelection: true,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     getRowId: (row) => row.id,
   });
 
@@ -36,6 +46,10 @@ export function LexiconEntryTable({ entries }: LexiconEntryTableProps) {
     .rows.map((row) => row.original.id);
   const hasSelection = selectedIds.length > 0;
   const columnCount = table.getAllColumns().length;
+  const pageCount = table.getPageCount();
+  const { pageIndex, pageSize } = table.getState().pagination;
+  const from = pageIndex * pageSize + 1;
+  const to = Math.min((pageIndex + 1) * pageSize, entries.length);
 
   async function onEnhance() {
     await enhanceEntries.mutateAsync(selectedIds);
@@ -52,74 +66,90 @@ export function LexiconEntryTable({ entries }: LexiconEntryTableProps) {
   }
 
   return (
-    <Table striped highlightOnHover withTableBorder>
-      <Table.Thead>
-        <Table.Tr>
-          <Table.Th colSpan={columnCount}>
-            <Group justify="space-between" gap="sm" wrap="nowrap">
-              <Menu position="bottom-start">
-                <Menu.Target>
-                  <Button size="xs" variant="default" loading={busy}>
-                    Actions
-                  </Button>
-                </Menu.Target>
-                <Menu.Dropdown>
-                  <Menu.Item
-                    disabled={!hasSelection || busy}
-                    onClick={() => void onEnhance()}
-                  >
-                    Enhance{hasSelection ? ` (${selectedIds.length})` : ""}
-                  </Menu.Item>
-                  <Menu.Item
-                    color="red"
-                    disabled={!hasSelection || busy}
-                    onClick={() => void onDelete()}
-                  >
-                    Delete{hasSelection ? ` (${selectedIds.length})` : ""}
-                  </Menu.Item>
-                </Menu.Dropdown>
-              </Menu>
-              <Text size="sm" c="dimmed">
-                {hasSelection
-                  ? `${selectedIds.length} selected`
-                  : "Select rows to enable actions"}
-              </Text>
-            </Group>
-          </Table.Th>
-        </Table.Tr>
-        {table.getHeaderGroups().map((headerGroup) => (
-          <Table.Tr key={headerGroup.id}>
-            {headerGroup.headers.map((header) => (
-              <Table.Th
-                key={header.id}
-                w={
-                  header.column.getSize() !== 150
-                    ? header.column.getSize()
-                    : undefined
-                }
-              >
-                {header.isPlaceholder
-                  ? null
-                  : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
-              </Table.Th>
-            ))}
+    <Stack gap="sm">
+      <Table striped highlightOnHover withTableBorder>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th colSpan={columnCount}>
+              <Group justify="space-between" gap="sm" wrap="nowrap">
+                <Menu position="bottom-start">
+                  <Menu.Target>
+                    <Button size="xs" variant="default" loading={busy}>
+                      Actions
+                    </Button>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    <Menu.Item
+                      disabled={!hasSelection || busy}
+                      onClick={() => void onEnhance()}
+                    >
+                      Enhance{hasSelection ? ` (${selectedIds.length})` : ""}
+                    </Menu.Item>
+                    <Menu.Item
+                      color="red"
+                      disabled={!hasSelection || busy}
+                      onClick={() => void onDelete()}
+                    >
+                      Delete{hasSelection ? ` (${selectedIds.length})` : ""}
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
+                <Text size="sm" c="dimmed">
+                  {hasSelection
+                    ? `${selectedIds.length} selected`
+                    : "Select rows to enable actions"}
+                </Text>
+              </Group>
+            </Table.Th>
           </Table.Tr>
-        ))}
-      </Table.Thead>
-      <Table.Tbody>
-        {table.getRowModel().rows.map((row) => (
-          <Table.Tr key={row.id}>
-            {row.getVisibleCells().map((cell) => (
-              <Table.Td key={cell.id}>
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-              </Table.Td>
-            ))}
-          </Table.Tr>
-        ))}
-      </Table.Tbody>
-    </Table>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <Table.Tr key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <Table.Th
+                  key={header.id}
+                  w={
+                    header.column.getSize() !== 150
+                      ? header.column.getSize()
+                      : undefined
+                  }
+                >
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
+                </Table.Th>
+              ))}
+            </Table.Tr>
+          ))}
+        </Table.Thead>
+        <Table.Tbody>
+          {table.getRowModel().rows.map((row) => (
+            <Table.Tr key={row.id}>
+              {row.getVisibleCells().map((cell) => (
+                <Table.Td key={cell.id}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </Table.Td>
+              ))}
+            </Table.Tr>
+          ))}
+        </Table.Tbody>
+      </Table>
+
+      <Group justify="space-between" align="center" wrap="wrap" gap="sm">
+        <Text size="sm" c="dimmed">
+          {from}–{to} of {entries.length}
+        </Text>
+        {pageCount > 1 ? (
+          <Pagination
+            total={pageCount}
+            value={pageIndex + 1}
+            onChange={(page) => table.setPageIndex(page - 1)}
+            size="sm"
+          />
+        ) : null}
+      </Group>
+    </Stack>
   );
 }
