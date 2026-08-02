@@ -1,5 +1,6 @@
-import { Checkbox, Text } from "@mantine/core";
+import { Anchor, Checkbox, Text } from "@mantine/core";
 import type { ColumnDef } from "@tanstack/react-table";
+import { Link } from "react-router-dom";
 import type { LexiconEntry } from "@lexicon/shared/model";
 
 function primaryDefinition(entry: LexiconEntry): string {
@@ -30,7 +31,15 @@ export const lexiconEntryColumns: ColumnDef<LexiconEntry>[] = [
   {
     accessorKey: "value",
     header: "Value",
-    cell: ({ row }) => <Text fw={500}>{row.original.value}</Text>,
+    cell: ({ row }) => (
+      <Anchor
+        component={Link}
+        to={`/lexicon/entries/${row.original.id}`}
+        fw={500}
+      >
+        {row.original.value}
+      </Anchor>
+    ),
   },
   {
     id: "definition",

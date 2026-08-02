@@ -3,6 +3,7 @@ import {
   createLexiconEntry,
   deleteLexiconEntry,
   getLexiconEntries,
+  getLexiconEntry,
 } from "@lexicon/shared/repository";
 import type { CreateLexiconEntryInput, LexiconEntry } from "@lexicon/shared";
 import { authenticatedFetch } from "./common";
@@ -13,6 +14,8 @@ export const lexiconEntryKeys = {
   lists: () => [...lexiconEntryKeys.all, "list"] as const,
   list: (lexiconId: string) =>
     [...lexiconEntryKeys.lists(), lexiconId] as const,
+  details: () => [...lexiconEntryKeys.all, "detail"] as const,
+  detail: (id: string) => [...lexiconEntryKeys.details(), id] as const,
 };
 
 export function useLexiconEntries(lexiconId: string | undefined) {
@@ -20,6 +23,14 @@ export function useLexiconEntries(lexiconId: string | undefined) {
     queryKey: lexiconEntryKeys.list(lexiconId ?? ""),
     queryFn: () => getLexiconEntries(getSupabase(), { lexiconId: lexiconId! }),
     enabled: Boolean(lexiconId),
+  });
+}
+
+export function useLexiconEntry(id: string | undefined) {
+  return useQuery({
+    queryKey: lexiconEntryKeys.detail(id ?? ""),
+    queryFn: () => getLexiconEntry(getSupabase(), id!),
+    enabled: Boolean(id),
   });
 }
 
@@ -66,6 +77,10 @@ export function useCreateLexiconEntries(lexiconId: string | undefined) {
         lexiconEntryKeys.list(lexiconId),
         (current) => (current ? [...created, ...current] : created),
       );
+
+      for (const entry of created) {
+        queryClient.setQueryData(lexiconEntryKeys.detail(entry.id), entry);
+      }
     },
   });
 }
@@ -103,6 +118,10 @@ export function useEnhanceLexiconEntries(lexiconId: string | undefined) {
           current?.map((entry) => updatedById.get(entry.id) ?? entry) ??
           result.entries,
       );
+
+      for (const entry of result.entries) {
+        queryClient.setQueryData(lexiconEntryKeys.detail(entry.id), entry);
+      }
     },
   });
 }
@@ -131,6 +150,10 @@ export function useDeleteLexiconEntries(lexiconId: string | undefined) {
         lexiconEntryKeys.list(lexiconId),
         (current) => current?.filter((entry) => !removed.has(entry.id)) ?? [],
       );
+
+      for (const id of ids) {
+        queryClient.removeQueries({ queryKey: lexiconEntryKeys.detail(id) });
+      }
     },
   });
 }

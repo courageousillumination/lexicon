@@ -5,20 +5,30 @@ import {
   Badge,
   Button,
   Group,
+  HoverCard,
   Stack,
   Text,
   Title,
 } from "@mantine/core";
 import { Link } from "react-router-dom";
+import type { LexiconEntry } from "@lexicon/shared/model";
 import { useLexiconEntries } from "../../api/lexicon-entry";
 import { useGenerateStory } from "../../api/story";
 import { LexiconContext } from "../../contexts/LexiconContext";
+import { LexiconEntryCard } from "../molecules/LexiconEntryCard";
 
 function errorMessage(error: unknown, fallback: string): string | null {
   if (!error) {
     return null;
   }
   return error instanceof Error ? error.message : fallback;
+}
+
+function entryByValue(
+  entries: LexiconEntry[] | undefined,
+  value: string,
+): LexiconEntry | undefined {
+  return entries?.find((entry) => entry.value === value);
 }
 
 export function GenerateStoryPanel() {
@@ -95,11 +105,43 @@ export function GenerateStoryPanel() {
                 Words used
               </Text>
               <Group gap="xs">
-                {story.wordsUsed.map((word) => (
-                  <Badge key={word} variant="light">
-                    {word}
-                  </Badge>
-                ))}
+                {story.wordsUsed.map((word) => {
+                  const entry = entryByValue(entriesQuery.data, word);
+                  if (!entry) {
+                    return (
+                      <Badge key={word} variant="light">
+                        {word}
+                      </Badge>
+                    );
+                  }
+
+                  return (
+                    <HoverCard
+                      key={word}
+                      width={320}
+                      shadow="md"
+                      openDelay={200}
+                      closeDelay={100}
+                      withinPortal
+                    >
+                      <HoverCard.Target>
+                        <Badge
+                          component={Link}
+                          to={`/lexicon/entries/${entry.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          variant="light"
+                          style={{ cursor: "pointer", textDecoration: "none" }}
+                        >
+                          {word}
+                        </Badge>
+                      </HoverCard.Target>
+                      <HoverCard.Dropdown>
+                        <LexiconEntryCard entry={entry} />
+                      </HoverCard.Dropdown>
+                    </HoverCard>
+                  );
+                })}
               </Group>
             </Stack>
           ) : null}

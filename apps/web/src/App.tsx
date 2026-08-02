@@ -3,6 +3,7 @@ import { RequireAuth } from "./components/utils/RequireAuth";
 import { RequireLexicon } from "./components/utils/RequireLexicon";
 import { AuthenticatedLayout } from "./components/templates/AuthenticatedLayout";
 import { HomeRedirect } from "./pages/HomeRedirect";
+import { LexiconEntryPage } from "./pages/LexiconEntryPage";
 import { LexiconPage } from "./pages/LexiconPage";
 import { LexiconsPage } from "./pages/LexiconsPage";
 import { SignInPage } from "./pages/SignInPage";
@@ -19,6 +20,10 @@ export function App() {
             <Route path="/lexicons" element={<LexiconsPage />} />
             <Route element={<RequireLexicon />}>
               <Route path="/lexicon" element={<LexiconPage />} />
+              <Route
+                path="/lexicon/entries/:id"
+                element={<LexiconEntryPage />}
+              />
               <Route path="/story" element={<StoryPage />} />
             </Route>
           </Route>
