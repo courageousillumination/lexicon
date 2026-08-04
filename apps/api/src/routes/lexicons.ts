@@ -9,6 +9,7 @@ import type { Database } from "@lexicon/shared/supabase";
 import type { AppEnv } from "../app-env.js";
 import type { Env } from "../env.js";
 import { createAiModel, enhanceEntry, generateStory } from "../ai/index.js";
+import { tagText } from "../services/tag-text.js";
 import { supabaseEnv } from "../supabase-env.js";
 
 type EnhanceEntriesBody = {
@@ -119,12 +120,28 @@ export function createLexiconsRoutes(config: Env): Hono<AppEnv> {
       );
     }
 
-    const story = await generateStory(
+    const generated = await generateStory(
       { lexiconName: lexicon.name, entries },
       model,
     );
 
-    return c.json({ story });
+    const taggedText = await tagText(
+      client,
+      {
+        text: generated.story,
+        lexiconId: lexicon.id,
+        targetLanguage: lexicon.targetLanguage,
+      },
+      model,
+    );
+
+    return c.json({
+      story: {
+        title: generated.title,
+        taggedText,
+        wordsUsed: generated.wordsUsed,
+      },
+    });
   });
 
   return routes;

@@ -52,7 +52,7 @@ function LexicalSegment({
 
 const TaggedTextDisplay: React.FC<TaggedTextDisplayProps> = ({ text }) => {
   return (
-    <Text component="div" lh={1.7} size="lg">
+    <Text component="div" lh={1.7} size="lg" style={{ whiteSpace: "pre-wrap" }}>
       {text.segments.map((segment, i) => {
         if (segment.type === "text") {
           return (

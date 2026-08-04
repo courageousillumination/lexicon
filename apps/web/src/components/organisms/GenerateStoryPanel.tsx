@@ -18,6 +18,7 @@ import { useLexiconEntries } from "../../api/lexicon-entry";
 import { useGenerateStory } from "../../api/story";
 import { LexiconContext } from "../../contexts/LexiconContext";
 import { LexiconEntryCard } from "../molecules/LexiconEntryCard";
+import TaggedTextDisplay from "../molecules/TaggedTextDisplay";
 
 function errorMessage(error: unknown, fallback: string): string | null {
   if (!error) {
@@ -104,9 +105,7 @@ export function GenerateStoryPanel() {
         <Paper p="lg">
           <Stack gap="md">
             <Title order={2}>{story.title}</Title>
-            <Text style={{ whiteSpace: "pre-wrap" }} lh={1.7}>
-              {story.story}
-            </Text>
+            <TaggedTextDisplay text={story.taggedText} />
             {story.wordsUsed.length > 0 ? (
               <Stack gap="xs">
                 <Text size="sm" c="dimmed" fw={600} tt="uppercase">

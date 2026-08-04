@@ -5,12 +5,12 @@ export interface TaggedText {
 }
 
 /** Used for non lexical components (such as punctuation). */
-interface TextTaggedTextSegment {
+export interface TextTaggedTextSegment {
   type: "text";
   value: string;
 }
 
-interface LexicalTaggedTextSegment {
+export interface LexicalTaggedTextSegment {
   type: "lexical";
 
   /** Text value. */
@@ -23,4 +23,5 @@ interface LexicalTaggedTextSegment {
   lexicalEntryId?: string;
 }
 
-type TaggedTextSegment = TextTaggedTextSegment | LexicalTaggedTextSegment;
+export type TaggedTextSegment =
+  TextTaggedTextSegment | LexicalTaggedTextSegment;

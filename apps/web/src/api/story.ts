@@ -1,9 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
+import type { TaggedText } from "@lexicon/shared/model";
 import { authenticatedFetch } from "./common";
 
 export type GeneratedStory = {
   title: string;
-  story: string;
+  taggedText: TaggedText;
   wordsUsed: string[];
 };
 
