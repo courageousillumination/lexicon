@@ -82,3 +82,5 @@ export interface Phrase extends LexiconEntryBase {
 export type LexiconEntry = Morpheme | Lexeme | Phrase;
 
 export type LexiconEntryType = LexiconEntry["type"];
+
+export type LexiconEntryStatus = LexiconEntryBase["status"];

@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
   Definition,
   LexiconEntry,
+  LexiconEntryStatus,
   LexiconEntryType,
   LexiconEntryVariant,
 } from "../model/lexicon-entry.js";
@@ -18,6 +19,8 @@ export interface LexiconEntrySearchOptions {
   ids?: string[];
   /** Restrict to a single entry type. */
   type?: LexiconEntryType;
+  /** Restrict to a single entry status. */
+  status?: LexiconEntryStatus;
   /** Maximum number of entries to return. */
   limit?: number;
 }
@@ -127,6 +130,10 @@ export async function getLexiconEntries(
 
   if (options.type !== undefined) {
     query = query.eq("type", options.type);
+  }
+
+  if (options.status !== undefined) {
+    query = query.eq("status", options.status);
   }
 
   if (options.limit !== undefined) {

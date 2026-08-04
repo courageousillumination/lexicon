@@ -15,11 +15,7 @@ import {
   Table,
   Text,
 } from "@mantine/core";
-import {
-  IconDots,
-  IconSparkles,
-  IconTrash,
-} from "@tabler/icons-react";
+import { IconDots, IconSparkles, IconTrash } from "@tabler/icons-react";
 import type { LexiconEntry } from "@lexicon/shared/model";
 import {
   useDeleteLexiconEntries,
@@ -38,6 +34,7 @@ export function LexiconEntryTable({ entries }: LexiconEntryTableProps) {
   const deleteEntries = useDeleteLexiconEntries(lexicon?.id);
   const busy = enhanceEntries.isPending || deleteEntries.isPending;
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: entries,
     columns: lexiconEntryColumns,

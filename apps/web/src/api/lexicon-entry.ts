@@ -5,23 +5,38 @@ import {
   getLexiconEntries,
   getLexiconEntry,
 } from "@lexicon/shared/repository";
-import type { CreateLexiconEntryInput, LexiconEntry } from "@lexicon/shared";
+import type {
+  CreateLexiconEntryInput,
+  LexiconEntry,
+  LexiconEntryStatus,
+} from "@lexicon/shared";
 import { authenticatedFetch } from "./common";
 import { getSupabase } from "../lib/supabase";
+
+export type LexiconEntryListFilters = {
+  status?: LexiconEntryStatus;
+};
 
 export const lexiconEntryKeys = {
   all: ["lexicon-entries"] as const,
   lists: () => [...lexiconEntryKeys.all, "list"] as const,
-  list: (lexiconId: string) =>
-    [...lexiconEntryKeys.lists(), lexiconId] as const,
+  list: (lexiconId: string, filters: LexiconEntryListFilters = {}) =>
+    [...lexiconEntryKeys.lists(), lexiconId, filters] as const,
   details: () => [...lexiconEntryKeys.all, "detail"] as const,
   detail: (id: string) => [...lexiconEntryKeys.details(), id] as const,
 };
 
-export function useLexiconEntries(lexiconId: string | undefined) {
+export function useLexiconEntries(
+  lexiconId: string | undefined,
+  filters: LexiconEntryListFilters = {},
+) {
   return useQuery({
-    queryKey: lexiconEntryKeys.list(lexiconId ?? ""),
-    queryFn: () => getLexiconEntries(getSupabase(), { lexiconId: lexiconId! }),
+    queryKey: lexiconEntryKeys.list(lexiconId ?? "", filters),
+    queryFn: () =>
+      getLexiconEntries(getSupabase(), {
+        lexiconId: lexiconId!,
+        status: filters.status,
+      }),
     enabled: Boolean(lexiconId),
   });
 }
@@ -73,10 +88,9 @@ export function useCreateLexiconEntries(lexiconId: string | undefined) {
         return;
       }
 
-      queryClient.setQueryData<LexiconEntry[]>(
-        lexiconEntryKeys.list(lexiconId),
-        (current) => (current ? [...created, ...current] : created),
-      );
+      void queryClient.invalidateQueries({
+        queryKey: [...lexiconEntryKeys.lists(), lexiconId],
+      });
 
       for (const entry of created) {
         queryClient.setQueryData(lexiconEntryKeys.detail(entry.id), entry);
@@ -108,16 +122,9 @@ export function useEnhanceLexiconEntries(lexiconId: string | undefined) {
         return;
       }
 
-      const updatedById = new Map(
-        result.entries.map((entry) => [entry.id, entry]),
-      );
-
-      queryClient.setQueryData<LexiconEntry[]>(
-        lexiconEntryKeys.list(lexiconId),
-        (current) =>
-          current?.map((entry) => updatedById.get(entry.id) ?? entry) ??
-          result.entries,
-      );
+      void queryClient.invalidateQueries({
+        queryKey: [...lexiconEntryKeys.lists(), lexiconId],
+      });
 
       for (const entry of result.entries) {
         queryClient.setQueryData(lexiconEntryKeys.detail(entry.id), entry);
@@ -145,11 +152,9 @@ export function useDeleteLexiconEntries(lexiconId: string | undefined) {
         return;
       }
 
-      const removed = new Set(ids);
-      queryClient.setQueryData<LexiconEntry[]>(
-        lexiconEntryKeys.list(lexiconId),
-        (current) => current?.filter((entry) => !removed.has(entry.id)) ?? [],
-      );
+      void queryClient.invalidateQueries({
+        queryKey: [...lexiconEntryKeys.lists(), lexiconId],
+      });
 
       for (const id of ids) {
         queryClient.removeQueries({ queryKey: lexiconEntryKeys.detail(id) });
