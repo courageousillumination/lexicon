@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Alert,
   Anchor,
@@ -10,13 +11,14 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { IconArrowLeft, IconSparkles } from "@tabler/icons-react";
+import { IconArrowLeft, IconPencil, IconSparkles } from "@tabler/icons-react";
 import { Link, useParams } from "react-router-dom";
 import {
   useEnhanceLexiconEntries,
   useLexiconEntry,
 } from "../api/lexicon-entry";
 import { LexiconEntryCard } from "../components/molecules/LexiconEntryCard";
+import { EditLexiconEntryForm } from "../components/organisms/EditLexiconEntryForm";
 
 function errorMessage(error: unknown, fallback: string): string | null {
   if (!error) {
@@ -27,6 +29,7 @@ function errorMessage(error: unknown, fallback: string): string | null {
 
 export function LexiconEntryPage() {
   const { id } = useParams<{ id: string }>();
+  const [editing, setEditing] = useState(false);
   const entryQuery = useLexiconEntry(id);
   const enhanceEntries = useEnhanceLexiconEntries(entryQuery.data?.lexiconId);
   const loadError = errorMessage(entryQuery.error, "Unable to load entry");
@@ -76,22 +79,42 @@ export function LexiconEntryPage() {
         </Group>
       </Anchor>
       <Paper p="lg">
-        <LexiconEntryCard
-          entry={entry}
-          actions={
-            <Button
-              size="sm"
-              variant="light"
-              leftSection={<IconSparkles size={16} stroke={1.6} />}
-              loading={enhanceEntries.isPending}
-              onClick={() => void enhanceEntries.mutateAsync([entry.id])}
-            >
-              Enhance
-            </Button>
-          }
-        />
+        {editing ? (
+          <EditLexiconEntryForm
+            key={entry.id}
+            entry={entry}
+            onCancel={() => setEditing(false)}
+            onSaved={() => setEditing(false)}
+          />
+        ) : (
+          <LexiconEntryCard
+            entry={entry}
+            actions={
+              <Group gap="sm">
+                <Button
+                  size="sm"
+                  variant="light"
+                  color="gray"
+                  leftSection={<IconPencil size={16} stroke={1.6} />}
+                  onClick={() => setEditing(true)}
+                >
+                  Edit
+                </Button>
+                <Button
+                  size="sm"
+                  variant="light"
+                  leftSection={<IconSparkles size={16} stroke={1.6} />}
+                  loading={enhanceEntries.isPending}
+                  onClick={() => void enhanceEntries.mutateAsync([entry.id])}
+                >
+                  Enhance
+                </Button>
+              </Group>
+            }
+          />
+        )}
       </Paper>
-      {enhanceError ? (
+      {!editing && enhanceError ? (
         <Alert color="red" title="Something went wrong">
           {enhanceError}
         </Alert>

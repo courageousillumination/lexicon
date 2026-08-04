@@ -4,6 +4,8 @@ import {
   deleteLexiconEntry,
   getLexiconEntries,
   getLexiconEntry,
+  updateLexiconEntry,
+  type UpdateLexiconEntryInput,
 } from "@lexicon/shared/repository";
 import type {
   CreateLexiconEntryInput,
@@ -46,6 +48,21 @@ export function useLexiconEntry(id: string | undefined) {
     queryKey: lexiconEntryKeys.detail(id ?? ""),
     queryFn: () => getLexiconEntry(getSupabase(), id!),
     enabled: Boolean(id),
+  });
+}
+
+export function useUpdateLexiconEntry() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: UpdateLexiconEntryInput) =>
+      updateLexiconEntry(getSupabase(), input),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(lexiconEntryKeys.detail(updated.id), updated);
+      void queryClient.invalidateQueries({
+        queryKey: [...lexiconEntryKeys.lists(), updated.lexiconId],
+      });
+    },
   });
 }
 

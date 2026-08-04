@@ -122,7 +122,7 @@ export async function getLexiconEntries(
     .from("lexicon_entries")
     .select(ENTRY_COLUMNS)
     .eq("lexicon_id", options.lexiconId)
-    .order("value", { ascending: true });
+    .order("created_at", { ascending: false });
 
   if (options.ids !== undefined) {
     query = query.in("id", options.ids);
