@@ -42,6 +42,11 @@ export function LexiconEntryTable({ entries }: LexiconEntryTableProps) {
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getRowId: (row) => row.id,
+    initialState: {
+      pagination: {
+        pageSize: 20,
+      },
+    },
   });
 
   const selectedIds = table

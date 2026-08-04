@@ -1,23 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  createLexiconEntry,
   deleteLexiconEntry,
   getLexiconEntries,
   getLexiconEntry,
   updateLexiconEntry,
   type UpdateLexiconEntryInput,
 } from "@lexicon/shared/repository";
-import type {
-  CreateLexiconEntryInput,
-  LexiconEntry,
-  LexiconEntryStatus,
-} from "@lexicon/shared";
+import { createLexiconEntries } from "@lexicon/shared/service";
+import type { LexiconEntry, LexiconEntryStatus } from "@lexicon/shared";
 import { authenticatedFetch } from "./common";
 import { getSupabase } from "../lib/supabase";
 
 export type LexiconEntryListFilters = {
   status?: LexiconEntryStatus;
 };
+
+const ENHANCE_BATCH_SIZE = 20;
 
 export const lexiconEntryKeys = {
   all: ["lexicon-entries"] as const,
@@ -75,33 +73,20 @@ export function useCreateLexiconEntries(lexiconId: string | undefined) {
         throw new Error("No lexicon selected");
       }
 
-      const normalized = [
-        ...new Set(values.map((value) => value.trim()).filter(Boolean)),
-      ];
+      const result = await createLexiconEntries(
+        getSupabase(),
+        lexiconId,
+        values,
+      );
 
-      if (normalized.length === 0) {
+      if (result.created.length === 0 && result.duplicates.length === 0) {
         throw new Error("No values to create");
       }
 
-      return Promise.all(
-        normalized.map((value) => {
-          const input: CreateLexiconEntryInput = {
-            lexiconId,
-            type: "lexeme",
-            status: "draft",
-            value,
-            pronunciation: "",
-            language: "",
-            definitions: [],
-            variants: [],
-            tags: [],
-          };
-          return createLexiconEntry(getSupabase(), input);
-        }),
-      );
+      return result;
     },
-    onSuccess: (created) => {
-      if (!lexiconId || created.length === 0) {
+    onSuccess: (result) => {
+      if (!lexiconId || result.created.length === 0) {
         return;
       }
 
@@ -109,7 +94,7 @@ export function useCreateLexiconEntries(lexiconId: string | undefined) {
         queryKey: [...lexiconEntryKeys.lists(), lexiconId],
       });
 
-      for (const entry of created) {
+      for (const entry of result.created) {
         queryClient.setQueryData(lexiconEntryKeys.detail(entry.id), entry);
       }
     },
@@ -125,14 +110,22 @@ export function useEnhanceLexiconEntries(lexiconId: string | undefined) {
         throw new Error("No lexicon selected");
       }
 
-      return authenticatedFetch<{ entries: LexiconEntry[] }>(
-        `/api/lexicons/${lexiconId}/entries/enhance`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ids }),
-        },
-      );
+      const entries: LexiconEntry[] = [];
+
+      for (let i = 0; i < ids.length; i += ENHANCE_BATCH_SIZE) {
+        const batch = ids.slice(i, i + ENHANCE_BATCH_SIZE);
+        const result = await authenticatedFetch<{ entries: LexiconEntry[] }>(
+          `/api/lexicons/${lexiconId}/entries/enhance`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ids: batch }),
+          },
+        );
+        entries.push(...result.entries);
+      }
+
+      return { entries };
     },
     onSuccess: (result) => {
       if (!lexiconId) {
@@ -159,9 +152,7 @@ export function useDeleteLexiconEntries(lexiconId: string | undefined) {
         throw new Error("No lexicon selected");
       }
 
-      await Promise.all(
-        ids.map((id) => deleteLexiconEntry(getSupabase(), id)),
-      );
+      await Promise.all(ids.map((id) => deleteLexiconEntry(getSupabase(), id)));
       return ids;
     },
     onSuccess: (ids) => {

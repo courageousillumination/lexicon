@@ -71,10 +71,12 @@ export function createLexiconsRoutes(config: Env): Hono<AppEnv> {
     };
 
     const updated = await Promise.all(
-      entries.map(async (entry) => {
-        const enhanced = await enhanceEntry(entry, languageContext, model);
-        return updateLexiconEntry(client, enhanced);
-      }),
+      entries
+        .filter((entry) => !entry.definitions.length)
+        .map(async (entry) => {
+          const enhanced = await enhanceEntry(entry, languageContext, model);
+          return updateLexiconEntry(client, enhanced);
+        }),
     );
 
     return c.json({ entries: updated });

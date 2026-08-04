@@ -17,6 +17,8 @@ export interface LexiconEntrySearchOptions {
   lexiconId: string;
   /** Restrict to specific entry IDs. */
   ids?: string[];
+  /** Restrict to an exact entry value. */
+  value?: string;
   /** Restrict to a single entry type. */
   type?: LexiconEntryType;
   /** Restrict to a single entry status. */
@@ -126,6 +128,10 @@ export async function getLexiconEntries(
 
   if (options.ids !== undefined) {
     query = query.in("id", options.ids);
+  }
+
+  if (options.value !== undefined) {
+    query = query.eq("value", options.value);
   }
 
   if (options.type !== undefined) {

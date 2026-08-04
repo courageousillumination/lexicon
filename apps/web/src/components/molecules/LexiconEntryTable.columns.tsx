@@ -42,6 +42,18 @@ export const lexiconEntryColumns: ColumnDef<LexiconEntry>[] = [
     ),
   },
   {
+    accessorKey: "pronunciation",
+    header: "Pronunciation",
+    cell: ({ row }) => {
+      const pronunciation = row.original.pronunciation.trim();
+      return (
+        <Text size="sm" fs={pronunciation ? "italic" : undefined} c="dimmed">
+          {pronunciation || "—"}
+        </Text>
+      );
+    },
+  },
+  {
     id: "definition",
     header: "Definition",
     accessorFn: (entry) => primaryDefinition(entry),

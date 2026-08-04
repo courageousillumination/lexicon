@@ -1,8 +1,10 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import {
   Alert,
+  Anchor,
   Button,
   Group,
+  List,
   Paper,
   Stack,
   Tabs,
@@ -13,6 +15,8 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconList, IconPlus } from "@tabler/icons-react";
+import { Link } from "react-router-dom";
+import type { DuplicateLexiconEntry } from "@lexicon/shared/service";
 import { useCreateLexiconEntries } from "../../api/lexicon-entry";
 import { LexiconContext } from "../../contexts/LexiconContext";
 
@@ -30,9 +34,42 @@ function parseBulkValues(text: string): string[] {
     .filter(Boolean);
 }
 
+function DuplicateEntriesAlert({
+  duplicates,
+}: {
+  duplicates: DuplicateLexiconEntry[];
+}) {
+  const count = duplicates.length;
+
+  return (
+    <Alert color="yellow" title="Duplicates skipped">
+      <Stack gap="xs">
+        <Text size="sm">
+          {count === 1
+            ? "1 value already exists and was not added:"
+            : `${count} values already exist and were not added:`}
+        </Text>
+        <List size="sm" spacing={4}>
+          {duplicates.map((duplicate) => (
+            <List.Item key={duplicate.existing.id}>
+              <Anchor
+                component={Link}
+                to={`/lexicon/entries/${duplicate.existing.id}`}
+              >
+                {duplicate.value}
+              </Anchor>
+            </List.Item>
+          ))}
+        </List>
+      </Stack>
+    </Alert>
+  );
+}
+
 export function AddLexiconEntriesForm() {
   const { lexicon } = useContext(LexiconContext)!;
   const createEntries = useCreateLexiconEntries(lexicon?.id);
+  const [duplicates, setDuplicates] = useState<DuplicateLexiconEntry[]>([]);
 
   const individualForm = useForm({
     initialValues: {
@@ -64,8 +101,11 @@ export function AddLexiconEntriesForm() {
       return;
     }
 
-    await createEntries.mutateAsync([values.value.trim()]);
-    individualForm.reset();
+    const result = await createEntries.mutateAsync([values.value.trim()]);
+    setDuplicates(result.duplicates);
+    if (result.created.length > 0) {
+      individualForm.reset();
+    }
   });
 
   const onCreateBulk = bulkForm.onSubmit(async (values) => {
@@ -73,8 +113,13 @@ export function AddLexiconEntriesForm() {
       return;
     }
 
-    await createEntries.mutateAsync(parseBulkValues(values.values));
-    bulkForm.reset();
+    const result = await createEntries.mutateAsync(
+      parseBulkValues(values.values),
+    );
+    setDuplicates(result.duplicates);
+    if (result.created.length > 0 || result.duplicates.length > 0) {
+      bulkForm.reset();
+    }
   });
 
   if (!lexicon) {
@@ -157,6 +202,10 @@ export function AddLexiconEntriesForm() {
             </form>
           </Tabs.Panel>
         </Tabs>
+
+        {duplicates.length > 0 ? (
+          <DuplicateEntriesAlert duplicates={duplicates} />
+        ) : null}
 
         {error ? (
           <Alert color="red" title="Something went wrong">
