@@ -39,7 +39,6 @@ export const lexiconEntryColumns: ColumnDef<LexiconEntry>[] = [
         onChange={row.getToggleSelectedHandler()}
       />
     ),
-    size: 40,
   },
   {
     accessorKey: "value",
@@ -49,6 +48,7 @@ export const lexiconEntryColumns: ColumnDef<LexiconEntry>[] = [
         component={Link}
         to={`/lexicon/entries/${row.original.id}`}
         fw={500}
+        style={{ whiteSpace: "nowrap" }}
       >
         {row.original.value}
       </Anchor>
@@ -62,7 +62,6 @@ export const lexiconEntryColumns: ColumnDef<LexiconEntry>[] = [
         {row.original.status}
       </Badge>
     ),
-    size: 110,
   },
   {
     accessorKey: "pronunciation",

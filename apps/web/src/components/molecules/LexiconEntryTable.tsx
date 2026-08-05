@@ -146,14 +146,7 @@ export function LexiconEntryTable({ entries }: LexiconEntryTableProps) {
             {table.getHeaderGroups().map((headerGroup) => (
               <Table.Tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <Table.Th
-                    key={header.id}
-                    w={
-                      header.column.getSize() !== 150
-                        ? header.column.getSize()
-                        : undefined
-                    }
-                  >
+                  <Table.Th key={header.id}>
                     {header.isPlaceholder
                       ? null
                       : flexRender(
