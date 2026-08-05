@@ -1,10 +1,23 @@
-import { Anchor, Checkbox, Text } from "@mantine/core";
+import { Anchor, Badge, Checkbox, Text } from "@mantine/core";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Link } from "react-router-dom";
 import type { LexiconEntry } from "@lexicon/shared/model";
 
 function primaryDefinition(entry: LexiconEntry): string {
   return entry.definitions[0]?.definition?.trim() || "—";
+}
+
+function statusColor(
+  status: LexiconEntry["status"],
+): "gray" | "book" | "yellow" {
+  switch (status) {
+    case "active":
+      return "book";
+    case "draft":
+      return "yellow";
+    case "archived":
+      return "gray";
+  }
 }
 
 export const lexiconEntryColumns: ColumnDef<LexiconEntry>[] = [
@@ -40,6 +53,16 @@ export const lexiconEntryColumns: ColumnDef<LexiconEntry>[] = [
         {row.original.value}
       </Anchor>
     ),
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => (
+      <Badge size="sm" variant="light" color={statusColor(row.original.status)}>
+        {row.original.status}
+      </Badge>
+    ),
+    size: 110,
   },
   {
     accessorKey: "pronunciation",

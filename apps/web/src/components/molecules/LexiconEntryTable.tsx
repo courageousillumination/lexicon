@@ -15,11 +15,17 @@ import {
   Table,
   Text,
 } from "@mantine/core";
-import { IconDots, IconSparkles, IconTrash } from "@tabler/icons-react";
+import {
+  IconCheck,
+  IconDots,
+  IconSparkles,
+  IconTrash,
+} from "@tabler/icons-react";
 import type { LexiconEntry } from "@lexicon/shared/model";
 import {
   useDeleteLexiconEntries,
   useEnhanceLexiconEntries,
+  useUpdateLexiconEntry,
 } from "../../api/lexicon-entry";
 import { LexiconContext } from "../../contexts/LexiconContext";
 import { lexiconEntryColumns } from "./LexiconEntryTable.columns";
@@ -31,8 +37,12 @@ export type LexiconEntryTableProps = {
 export function LexiconEntryTable({ entries }: LexiconEntryTableProps) {
   const { lexicon } = useContext(LexiconContext)!;
   const enhanceEntries = useEnhanceLexiconEntries(lexicon?.id);
+  const updateEntry = useUpdateLexiconEntry();
   const deleteEntries = useDeleteLexiconEntries(lexicon?.id);
-  const busy = enhanceEntries.isPending || deleteEntries.isPending;
+  const busy =
+    enhanceEntries.isPending ||
+    updateEntry.isPending ||
+    deleteEntries.isPending;
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
@@ -49,9 +59,8 @@ export function LexiconEntryTable({ entries }: LexiconEntryTableProps) {
     },
   });
 
-  const selectedIds = table
-    .getSelectedRowModel()
-    .rows.map((row) => row.original.id);
+  const selectedRows = table.getSelectedRowModel().rows;
+  const selectedIds = selectedRows.map((row) => row.original.id);
   const hasSelection = selectedIds.length > 0;
   const columnCount = table.getAllColumns().length;
   const pageCount = table.getPageCount();
@@ -61,6 +70,13 @@ export function LexiconEntryTable({ entries }: LexiconEntryTableProps) {
 
   async function onEnhance() {
     await enhanceEntries.mutateAsync(selectedIds);
+    table.resetRowSelection();
+  }
+
+  async function onMarkActive() {
+    for (const row of selectedRows) {
+      await updateEntry.mutateAsync({ ...row.original, status: "active" });
+    }
     table.resetRowSelection();
   }
 
@@ -100,6 +116,14 @@ export function LexiconEntryTable({ entries }: LexiconEntryTableProps) {
                         onClick={() => void onEnhance()}
                       >
                         Enhance
+                        {hasSelection ? ` (${selectedIds.length})` : ""}
+                      </Menu.Item>
+                      <Menu.Item
+                        leftSection={<IconCheck size={14} stroke={1.6} />}
+                        disabled={!hasSelection || busy}
+                        onClick={() => void onMarkActive()}
+                      >
+                        Mark as active
                         {hasSelection ? ` (${selectedIds.length})` : ""}
                       </Menu.Item>
                       <Menu.Item
