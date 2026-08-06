@@ -9,6 +9,7 @@ import {
 import { createLexiconEntries } from "@lexicon/shared/service";
 import type { LexiconEntry, LexiconEntryStatus } from "@lexicon/shared";
 import { authenticatedFetch } from "./common";
+import { apiUrl } from "../lib/api-url";
 import { getSupabase } from "../lib/supabase";
 
 export type LexiconEntryListFilters = {
@@ -115,7 +116,7 @@ export function useEnhanceLexiconEntries(lexiconId: string | undefined) {
       for (let i = 0; i < ids.length; i += ENHANCE_BATCH_SIZE) {
         const batch = ids.slice(i, i + ENHANCE_BATCH_SIZE);
         const result = await authenticatedFetch<{ entries: LexiconEntry[] }>(
-          `/api/lexicons/${lexiconId}/entries/enhance`,
+          apiUrl(`/api/lexicons/${lexiconId}/entries/enhance`),
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

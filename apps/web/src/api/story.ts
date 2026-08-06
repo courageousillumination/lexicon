@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import type { TaggedText } from "@lexicon/shared/model";
+import { apiUrl } from "../lib/api-url";
 import { authenticatedFetch } from "./common";
 
 export type GeneratedStory = {
@@ -17,7 +18,7 @@ export function useGenerateStory() {
   return useMutation({
     mutationFn: async ({ lexiconId, ids }: GenerateStoryInput) => {
       return authenticatedFetch<{ story: GeneratedStory }>(
-        `/api/lexicons/${lexiconId}/stories/generate`,
+        apiUrl(`/api/lexicons/${lexiconId}/stories/generate`),
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

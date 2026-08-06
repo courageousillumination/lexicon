@@ -3,6 +3,13 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./model": "./src/model/index.ts",
+    "./repository": "./src/repository/index.ts",
+    "./service": "./src/service/index.ts",
+    "./supabase": "./src/supabase/index.ts"
+  },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
