@@ -1,11 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": null,
   "installCommand": "cd ../.. && pnpm install",
   "buildCommand": "pnpm build:vercel",
-  "functions": {
-    "api/[[...route]].js": {
-      "maxDuration": 300
-    }
-  }
+  "rewrites": [{ "source": "/api/(.*)", "destination": "/api" }]
 }

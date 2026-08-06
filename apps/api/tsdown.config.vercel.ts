@@ -10,10 +10,10 @@ const sharedAliases = {
   "@lexicon/shared": path.join(sharedSrc, "index.ts"),
 } as const;
 
-/** Produces `api/[[...route]].js` for Vercel — shared is inlined so workspace TS is not loaded at runtime. */
+/** Bundles the Hono app to `api/index.js` with `@lexicon/shared` inlined. */
 export default defineConfig({
   entry: {
-    "handler": "src/vercel.ts",
+    index: "src/vercel.ts",
   },
   format: ["esm"],
   platform: "node",

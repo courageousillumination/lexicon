@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch --tsconfig tsconfig.json src/index.ts",
     "build": "tsdown",
-    "build:vercel": "tsdown --config tsdown.config.vercel.ts && mv api/handler.js 'api/[[...route]].js'",
+    "build:vercel": "tsdown --config tsdown.config.vercel.ts",
     "start": "node dist/index.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
