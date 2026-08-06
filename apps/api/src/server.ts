@@ -46,3 +46,6 @@ export function buildApp(options: BuildAppOptions = {}): {
 
   return { app, config };
 }
+
+const { app } = buildApp();
+export default app;
