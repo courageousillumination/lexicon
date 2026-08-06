@@ -10,7 +10,7 @@
     "dev": "pnpm -r --parallel --filter @lexicon/web --filter @lexicon/api run dev",
     "dev:web": "pnpm --filter @lexicon/web dev",
     "dev:api": "pnpm --filter @lexicon/api dev",
-    "build": "pnpm -r --filter @lexicon/web --filter @lexicon/api run build",
+    "build": "pnpm --filter @lexicon/shared build && pnpm -r --filter @lexicon/web --filter @lexicon/api run build",
     "test": "pnpm -r run test",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

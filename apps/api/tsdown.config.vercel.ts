@@ -10,20 +10,22 @@ const sharedAliases = {
   "@lexicon/shared": path.join(sharedSrc, "index.ts"),
 } as const;
 
+/** Produces `api/[[...route]].js` for Vercel — shared is inlined so workspace TS is not loaded at runtime. */
 export default defineConfig({
-  entry: ["src/index.ts"],
+  entry: {
+    "handler": "src/vercel.ts",
+  },
   format: ["esm"],
   platform: "node",
   target: "node22",
-  outDir: "dist",
-  sourcemap: true,
+  outDir: "api",
+  sourcemap: false,
   clean: true,
   dts: false,
   hash: false,
   fixedExtension: false,
   alias: sharedAliases,
   deps: {
-    // Workspace package must be inlined; Vercel/Node can't load its TS sources.
     alwaysBundle: [/^@lexicon\/shared(?:\/|$)/],
   },
 });

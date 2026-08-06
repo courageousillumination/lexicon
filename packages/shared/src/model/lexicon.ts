@@ -1,5 +1,5 @@
-import { LexiconEntry } from "./lexicon-entry";
-import type { LanguageCode } from "./language";
+import type { LexiconEntry } from "./lexicon-entry.js";
+import type { LanguageCode } from "./language.js";
 
 /**
  * The Lexicon is the core model of lexicon. It represents all of the lexemes
