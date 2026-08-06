@@ -1,0 +1,13 @@
+# Point your site at the Docker container (published on 127.0.0.1:3000).
+# Replace lexicon.example.com with your domain.
+
+lexicon.example.com {
+	encode gzip zstd
+	reverse_proxy 127.0.0.1:3000 {
+		# AI enhance/story routes can run longer than the default
+		transport http {
+			read_timeout 120s
+			write_timeout 120s
+		}
+	}
+}

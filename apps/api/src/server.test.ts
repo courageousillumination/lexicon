@@ -15,6 +15,13 @@ describe("API routes", () => {
     }));
   });
 
+  it("exposes a health check", async () => {
+    const response = await app.request("/api/health");
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ ok: true });
+  });
+
   it("requires authentication to enhance lexicon entries", async () => {
     const response = await app.request(
       "/api/lexicons/00000000-0000-0000-0000-000000000001/entries/enhance",

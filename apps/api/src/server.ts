@@ -1,3 +1,4 @@
+import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import type { AppEnv } from "./app-env.js";
@@ -33,7 +34,15 @@ export function buildApp(options: BuildAppOptions = {}): {
     await next();
   });
 
+  app.get("/api/health", (c) => c.json({ ok: true }));
   app.route("/api/lexicons", createLexiconsRoutes(config));
+  app.all("/api/*", (c) => c.json({ message: "Not found" }, 404));
+
+  if (config.WEB_DIST) {
+    const root = config.WEB_DIST;
+    app.use("*", serveStatic({ root }));
+    app.get("*", serveStatic({ root, path: "index.html" }));
+  }
 
   return { app, config };
 }

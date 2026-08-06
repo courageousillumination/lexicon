@@ -2,6 +2,8 @@ export type Env = {
   NODE_ENV: "development" | "test" | "production";
   HOST: string;
   PORT: number;
+  /** Directory of built web assets to serve (SPA). Unset in local API-only dev. */
+  WEB_DIST?: string;
   SUPABASE_URL: string;
   SUPABASE_PUBLISHABLE_KEY: string;
   SUPABASE_SECRET_KEY: string;
@@ -56,10 +58,13 @@ export function loadEnv(overrides: EnvOverrides = {}): Env {
     ),
   };
 
+  const webDist = source.WEB_DIST?.trim();
+
   return {
     NODE_ENV: readNodeEnv(source),
     HOST: source.HOST || "0.0.0.0",
     PORT: readPort(source),
+    ...(webDist ? { WEB_DIST: webDist } : {}),
     SUPABASE_URL: readString(source, "SUPABASE_URL"),
     SUPABASE_PUBLISHABLE_KEY: readString(source, "SUPABASE_PUBLISHABLE_KEY"),
     SUPABASE_SECRET_KEY: readString(source, "SUPABASE_SECRET_KEY"),

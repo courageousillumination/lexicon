@@ -1,0 +1,20 @@
+services:
+  lexicon:
+    build:
+      context: .
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY}
+        VITE_APP_NAME: ${VITE_APP_NAME:-Lexicon}
+    image: lexicon:local
+    restart: unless-stopped
+    # Bind to loopback so host Caddy can proxy; do not publish publicly.
+    ports:
+      - "127.0.0.1:3000:3000"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: "3000"
+      WEB_DIST: /app/public
